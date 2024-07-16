@@ -1,0 +1,28 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.logo{
+    margin-left: 35px;
+    margin-top: 38px;
+}
+
+.side{
+    margin-left: 35px;
+    margin-top: 40px;
+    width: 199px;
+    height: 100vh;
+    border-right: 1px solid rgba(0, 0, 0, 0.3);
+}
+.bar{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 40px;
+}
+
+.trash{
+    margin-left: 5.5rem;
+}
