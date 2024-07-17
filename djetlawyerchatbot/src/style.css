@@ -116,7 +116,7 @@ h3{
     right: 0;
 }
 
-@media screen and (max-width: 400px){
+@media screen and (max-width: 600px){
     .header{
         display: flex;
         align-items: center;
@@ -161,6 +161,48 @@ h3{
     }
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 700px) {
+    .main{
+        grid-template-columns: 150px 1fr;
+        align-items: center;
+    }
 
+    .side{
+        width: 150px;
+    }
+
+    .side p{
+        width: 90px;
+    }
+    .question p{
+        width: 100px;
+    }
+
+    h3{
+        font-size: 18px;
+    }
+    .ask{
+        width: 300px;
+    }
+    .qMark{
+        right: 20px;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .main{
+        grid-template-columns: 200px 1fr;
+        align-items: center;
+    }
+
+    .question p{
+        width: 200px;
+    }
+
+    .ask{
+        width: 350px;
+    }
+    .qMark{
+        right: 20px;
+    }
 }
