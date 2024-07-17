@@ -9,6 +9,10 @@
     margin-top: 38px;
 }
 
+img{
+    cursor: pointer;
+}
+
 .main{
     display: grid;
     grid-template-columns: 350px 1fr;
@@ -19,7 +23,7 @@
     margin-left: 35px;
     margin-top: 40px;
     width: 200px;
-    height: 100vh;
+    height: 80vh;
     border-right: 0.5px solid rgba(0, 0, 0, 0.3);
 }
 
@@ -88,4 +92,22 @@ h3{
     width: 430px;
     padding: 10px;
     border-radius: 10px;
+    color: rgba(126, 122, 143, 1);
+}
+
+.ask{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(249, 136, 72, 0.5);
+    width: 900px;
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.qMark {
+    position: fixed;
+    bottom: 0;
+    right: 0;
 }
