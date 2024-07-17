@@ -1,9 +1,9 @@
-import sb from '../images/Bot (1).png'
-import create from '../images/Create.png'
-import trash from '../images/Trash Can.png'
-import bot from '../images/Bot.png'
-import Send from '../images/Send Letter.png'
-import question from '../images/Ask Question.png'
+import sb from '../images/Bot (1).svg'
+import create from '../images/Create.svg'
+import trash from '../images/Trash Can.svg'
+import bot from '../images/Bot.svg'
+import Send from '../images/Send Letter.svg'
+import question from '../images/Ask Question.svg'
 
 
 export default function Side (){
@@ -11,7 +11,7 @@ export default function Side (){
         <div className='main'>
             <div className='side'>
                 <div className='bar'>
-                    <img src={sb}/>
+                    <img src={bot}/>
                     <p>New Chat</p>
                     <img src={create} className='trash'/>
                 </div>
@@ -26,7 +26,7 @@ export default function Side (){
             </div>
             <div className='middle'>
                 <div className='main1'>
-                    <img src={bot}/>
+                    <img src={sb}/>
                     <h3>How may I help you today?</h3>
                 </div>
                 <div className='question'>

@@ -1,5 +1,5 @@
 
-import logo from "../images/djetlawyer logo 1.png"
+import logo from "../images/djetlawyer logo 1.svg"
 
 export default function Header (){
     return(
