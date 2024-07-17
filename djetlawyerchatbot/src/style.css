@@ -9,6 +9,10 @@
     margin-top: 38px;
 }
 
+.menu{
+    display: none;
+}
+
 img{
     cursor: pointer;
 }
@@ -110,4 +114,53 @@ h3{
     position: fixed;
     bottom: 0;
     right: 0;
+}
+
+@media screen and (max-width: 400px){
+    .header{
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .main{
+        display: block;
+    }
+
+    .menu{
+        display: block;
+        margin-left: 1rem;
+    }
+
+    .side{
+        display: none;
+    }
+
+    .middle{
+        height: 100vh;
+    }
+
+    h3{
+        font-size: 16px;
+    }
+
+    .question{
+        display: block;
+    }
+
+    .question p{
+        width: 250px;
+    }
+
+    .ask{
+        width: 250px;
+    }
+
+    .qMark{
+        right: 20px;
+    }
+}
+
+@media screen and (max-width: 800px) {
+
 }

@@ -30,13 +30,13 @@ export default function Side (){
                     <h3>How may I help you today?</h3>
                 </div>
                 <div className='question'>
-                    <p>Tell me about legal law <br /> <small>Legal law is a set of rules that sjsas ds ds ds d</small></p>
-                    <p>Tell me about legal law <br /> <small>Legal law is a set of rules that sjsas ds ds ds d</small></p>
-                    <p>Tell me about legal law <br /> <small>Legal law is a set of rules that sjsas ds ds ds d</small></p>
-                    <p>Tell me about legal law <br /> <small>Legal law is a set of rules that sjsas ds ds ds d</small></p>
+                    <p>Explain Statutory Rape   <br /> <small>Like I’m a five year old</small></p>
+                    <p>What is Cyber law  <br /> <small>Detailed Explanation</small></p>
+                    <p>Write a short note on Health law <br /> <small>Not more than 300 words</small></p>
+                    <p>What is Business law<br /> <small>Elaborate more on Antitrust law </small></p>
                 </div>
                 <div className='ask'>
-                <p>Tell me about legal law <br /> <small>Legal law is a set of rules that sjsas ds ds ds d</small></p>
+                <p>Explain company law</p>
                 <img src={Send}/>
                 </div>
             </div>    
