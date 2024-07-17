@@ -4,9 +4,41 @@ import trash from '../images/Trash Can.svg'
 import bot from '../images/Bot.svg'
 import Send from '../images/Send Letter.svg'
 import question from '../images/Ask Question.svg'
+import { useState } from 'react'
 
 
 export default function Side (){
+
+    const [historys, setHistorys] = useState([
+        {id:1, text: 'Tell me about legal law', details: 'Legal law is a set of rules that sjsas ds ds ds d' },
+        {id:2, text: 'Advantages of being a lawyer', details: 'Legal law is a set of rules that sjsas ds ds ds d'}
+    ])
+
+    const [inputValue, setInputValue] = useState('');
+
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (inputValue.trim()) {
+      const newHistory = {
+        id: historys.length + 1, 
+        text: inputValue,
+        details: '' 
+      };
+      setHistorys([...historys, newHistory]);
+      setInputValue(''); 
+    }
+  };
+
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
+
+    function handleDelete(id){
+        setHistorys(historys.filter(history => history.id !== id))
+    }
+
     return(
         <div className='main'>
             <div className='side'>
@@ -15,14 +47,13 @@ export default function Side (){
                     <p>New Chat</p>
                     <img src={create} className='trash'/>
                 </div>
-                <div className='bar'>        
-                    <p>Tell me about legal law <br /> <small>Legal law is a set of rules that sjsas ds ds ds d</small></p>
-                    <img src={trash} className='trash'/>
+                {historys.map(history => (
+                        <div key={history.id} className='bar'>        
+                    <p>{history.text}<br /> <small>{history.details}</small></p>
+                    <img src={trash} className='trash' onClick={() => handleDelete(history.id)}/>
                 </div>
-                <div className='bar'>
-                    <p>Advantages of being  a lawyer <br /> <small>Legal law is a set of rules that sjsas ds ds ds d</small></p>
-                    <img src={trash} className='trash'/>
-                </div>
+                    ))
+                }   
             </div>
             <div className='middle'>
                 <div className='main1'>
@@ -35,10 +66,18 @@ export default function Side (){
                     <p>Write a short note on Health law <br /> <small>Not more than 300 words</small></p>
                     <p>What is Business law<br /> <small>Elaborate more on Antitrust law </small></p>
                 </div>
-                <div className='ask'>
-                <p>Explain company law</p>
-                <img src={Send}/>
-                </div>
+                <form onSubmit={handleFormSubmit}>
+                    <div className='ask'>
+                    <input 
+                    type='text'
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    placeholder='Ask a question'/>
+                    <button type='submit'>
+                    <img src={Send}/>
+                    </button>
+                    </div>
+                </form>
             </div>    
             <img src={question} className='qMark'/>
         </div>
