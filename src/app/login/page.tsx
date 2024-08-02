@@ -1,6 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../redux/store';
+import { loginUser } from '../../redux/slices/authSlice';
 import { 
   Box, 
   Button, 
@@ -14,7 +17,8 @@ import {
   InputGroup, 
   InputLeftElement,
   Center, 
-  Image
+  Image,
+  useToast
 } from '@chakra-ui/react';
 import { IconContext } from 'react-icons';
 import dynamic from 'next/dynamic';
@@ -23,9 +27,43 @@ import Navigation from '../../components/Navigation';
 import MaleUser from '../../../public/Male User.png';
 import Email from '../../../public/Email.png';
 import Password from '../../../public/Security Lock.png';
-
+import { User } from '../../types/auth';
+import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoading, error } = useSelector((state: RootState) => state.auth);
+
+  const toast = useToast();
+  const router = useRouter();
+
+  const handleLogin = async () => {
+    const loginData = {
+      username: email,
+      password: password
+    };
+    try {
+      await dispatch(loginUser(loginData)).unwrap();
+      toast({
+        title: "Login successful",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      router.push('/chatbot');
+    } catch (err) {
+      toast({
+        title: "Login failed",
+        description: error || "An error occurred",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
       <Flex direction="column" minHeight="100vh">
@@ -46,7 +84,13 @@ const LoginPage = () => {
                       <InputLeftElement pointerEvents="none" alignItems={"center"} height="100%" >
                         <Image src={Email.src} alt="Email" />
                       </InputLeftElement>
-                      <Input placeholder="Email" size="lg" height="60px" />
+                      <Input 
+                        placeholder="Email" 
+                        size="lg" 
+                        height="60px" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
                     </InputGroup>
                   </FormControl>
                 </Center>
@@ -56,7 +100,14 @@ const LoginPage = () => {
                       <InputLeftElement pointerEvents="none" height="100%" >
                         <Image src={Password.src} alt="Password" />
                       </InputLeftElement>
-                      <Input type="password" placeholder="Password" size="lg" height="60px"/>
+                      <Input 
+                        type="password" 
+                        placeholder="Password" 
+                        size="lg" 
+                        height="60px"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
                     </InputGroup>
                   </FormControl>
                 </Center>
@@ -67,6 +118,8 @@ const LoginPage = () => {
                     width="80%"
                     height="60px"
                     mt={4}
+                    onClick={handleLogin}
+                    isLoading={isLoading}
                   >
                     Log In
                   </Button>

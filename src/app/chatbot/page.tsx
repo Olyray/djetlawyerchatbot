@@ -1,7 +1,10 @@
-// src/app/chatbot/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store'; 
+import { useAuthPersistence } from '../../hooks/useAuthPersistence';
 import {
   Box,
   Flex,
@@ -15,25 +18,46 @@ import {
   InputGroup,
   InputRightElement
 } from '@chakra-ui/react';
-
-// Import necessary icons and logo
 import Logo from '../../../public/dJetLawyer_logo.png';
 import NewChatIcon from '../../../public/new-chat-icon.png';
 import BotIcon from '../../../public/bot-icon.png';
 import SendIcon from '../../../public/send-icon.png';
 
 const ChatbotPage = () => {
+  const router = useRouter();
+  const { user, token, isLoading } = useSelector((state: RootState) => state.auth);
+  const { logout } = useAuthPersistence();
+  const [isHydrated, setIsHydrated] = useState(false);
+
+
   const [chatHistory, setChatHistory] = useState([
     { question: 'Tell me about Legal Law', answer: 'Legal law is a set of rules that......' },
     { question: 'Advantages of being a Lawyer', answer: 'Legal law is a set of rules that......' },
   ]);
 
   const suggestedQuestions = [
-    { title: 'Explain Statutory Rape', description: 'Like I\'m a five year old' },
     { title: 'What is Cyber law', description: 'Detailed Explanation' },
+    { title: 'Explain Statutory Rape', description: 'Like I\'m a five year old' },
     { title: 'Write a short note on Health law', description: 'Not more than 300 words' },
     { title: 'What is Business law', description: 'Elaborate more on Antitrust law' },
   ];
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    console.log(`isLoading: ${isLoading}`)
+    console.log(`token: ${token}`)
+    if (!isLoading && !token) {
+      router.push('/login');
+    }
+  }, [isHydrated, isLoading, token]);  
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   return (
     <Flex direction="column" minHeight="100vh">
@@ -51,13 +75,14 @@ const ChatbotPage = () => {
               <Image src={NewChatIcon.src} alt="New Chat" boxSize="20px" ml={38} />
             </Flex>
             {chatHistory.map((chat, index) => (
-              <Flex align="center" cursor="pointer" p={2} borderRadius="md" _hover={{ bg: 'gray.200' }} justifyContent={"space-between"}>
+              <Flex key={index} align="center" cursor="pointer" p={2} borderRadius="md" _hover={{ bg: 'gray.200' }} justifyContent={"space-between"}>
                 <Text key={index} fontSize="sm" noOfLines={1} >
                   {chat.question}
                 </Text>
                 <Image src={NewChatIcon.src} alt="New Chat" boxSize="20px" ml={38} />
               </Flex>
             ))}
+            <Button onClick={handleLogout}>Logout</Button>
           </VStack>
         </Box>
 

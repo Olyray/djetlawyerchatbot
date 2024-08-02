@@ -1,6 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../redux/store';
+import { registerUser } from '../../redux/slices/authSlice';
 import { 
   Box, 
   Button, 
@@ -14,7 +17,8 @@ import {
   InputGroup, 
   InputLeftElement,
   Center, 
-  Image
+  Image,
+  useToast
 } from '@chakra-ui/react';
 import { IconContext } from 'react-icons';
 import dynamic from 'next/dynamic';
@@ -24,8 +28,54 @@ import MaleUser from '../../../public/Male User.png';
 import Email from '../../../public/Email.png';
 import Password from '../../../public/Security Lock.png';
 
+// Added import for User interface
+import { User } from '../../types/auth';
 
 const RegisterPage = () => {
+  // Added state for form inputs
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Added Redux hooks
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoading, error } = useSelector((state: RootState) => state.auth);
+
+  // Added toast for displaying messages
+  const toast = useToast();
+
+  // Added handleRegister function
+  const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords do not match",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const userData: User = { email, password };
+    try {
+      await dispatch(registerUser(userData)).unwrap();
+      toast({
+        title: "Registration successful, Please check your email for a confirmation message",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (err) {
+      toast({
+        title: "Registration failed",
+        description: error || "An error occurred",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
       <Flex direction="column" minHeight="100vh">
@@ -40,36 +90,60 @@ const RegisterPage = () => {
                 <Text fontSize="2xl" textAlign="center" mb={4}>
                   Create an Account
                 </Text>
+                {/* Modified: Added value and onChange props to Input */}
                 <Center>
                   <FormControl width={"80%"} >
                     <InputGroup>
                       <InputLeftElement pointerEvents="none" alignItems={"center"} height="100%" >
                         <Image src={Email.src} alt="Email" />
                       </InputLeftElement>
-                      <Input placeholder="Email" size="lg" height="60px" />
+                      <Input 
+                        placeholder="Email" 
+                        size="lg" 
+                        height="60px" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
                     </InputGroup>
                   </FormControl>
                 </Center>
+                {/* Modified: Added value and onChange props to Input */}
                 <Center>
                   <FormControl width={"80%"}>
                     <InputGroup>
                       <InputLeftElement pointerEvents="none" height="100%" >
                         <Image src={Password.src} alt="Password" />
                       </InputLeftElement>
-                      <Input type="password" placeholder="Password" size="lg" height="60px"/>
+                      <Input 
+                        type="password" 
+                        placeholder="Password" 
+                        size="lg" 
+                        height="60px"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
                     </InputGroup>
                   </FormControl>
                 </Center>
+                {/* Modified: Added value and onChange props to Input */}
                 <Center>
                   <FormControl width={"80%"}>
                     <InputGroup>
                       <InputLeftElement pointerEvents="none" height="100%" >
                         <Image src={Password.src} alt="Password" />
                       </InputLeftElement>
-                      <Input type="password" placeholder="Confirm Password" size="lg" height="60px"/>
+                      <Input 
+                        type="password" 
+                        placeholder="Confirm Password" 
+                        size="lg" 
+                        height="60px"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
                     </InputGroup>
                   </FormControl>
                 </Center>
+                {/* Modified: Added onClick and isLoading props to Button */}
                 <Center>
                   <Button
                     colorScheme="orange"
@@ -77,6 +151,8 @@ const RegisterPage = () => {
                     width="80%"
                     height="60px"
                     mt={4}
+                    onClick={handleRegister}
+                    isLoading={isLoading}
                   >
                     Sign Up
                   </Button>
