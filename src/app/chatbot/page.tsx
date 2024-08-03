@@ -40,7 +40,6 @@ const ChatbotPage = () => {
   const [isSending, setIsSending] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [aiResponse, setAiResponse] = useState<string | null>(null);
 
   const suggestedQuestions = [
     { title: 'What is Cyber law', description: 'Detailed Explanation' },
@@ -78,13 +77,11 @@ const ChatbotPage = () => {
     if (inputMessage.trim()) {
       setIsSending(true);
       setPendingMessage(inputMessage);
-      setAiResponse(null);
       dispatch(sendMessage({ message: inputMessage, chatId: currentChat.id || undefined }))
         .unwrap()
         .then((response) => {
           setInputMessage('');
           setPendingMessage(null);
-          setAiResponse(response.answer);
         })
         .catch((error) => {
           toast({
@@ -124,11 +121,6 @@ const ChatbotPage = () => {
             <ReactMarkdown>{pendingMessage}</ReactMarkdown>
           </Box>
         )}
-        {aiResponse && (
-          <Box alignSelf="flex-start" bg="gray.100" p={3} borderRadius="md">
-            <ReactMarkdown>{aiResponse}</ReactMarkdown>
-          </Box>
-        )}
         <div ref={messagesEndRef} />
       </>
     );
@@ -164,7 +156,7 @@ const ChatbotPage = () => {
 
         {/* Main Chat Area */}
         <Flex flex={1} direction="column" p={8} alignItems={"center"}>
-          {currentChat.id || aiResponse ? (
+          {currentChat.messages.length > 0 ? (
               <VStack spacing={4} align="stretch" width="full" flex={1} overflowY="auto">
                {renderMessages()}
               </VStack>
