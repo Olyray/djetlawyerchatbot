@@ -77,7 +77,7 @@ const ChatbotPage = () => {
     if (inputMessage.trim()) {
       setIsSending(true);
       setPendingMessage(inputMessage);
-      dispatch(sendMessage({ message: inputMessage, chatId: currentChat.id || undefined }))
+      dispatch(sendMessage({ message: inputMessage, chatId: currentChat.id ? currentChat.id : undefined}))
         .unwrap()
         .then((response) => {
           setInputMessage('');
@@ -104,9 +104,6 @@ const ChatbotPage = () => {
     router.push('/login');
   };
 
-  // if (chatsLoading) {
-  //   return <Spinner />;
-  // }
 
   const renderMessages = () => {
     return (
@@ -136,21 +133,23 @@ const ChatbotPage = () => {
 
       <Flex flex={1} width="full">
         {/* Sidebar */}
-        <Box width="300px" p={4} borderRight="1px" borderColor="gray.200">
-          <VStack align="stretch" spacing={4}>
+        <Box width="300px" p={4} borderRight="1px" borderColor="gray.200" position="sticky" top={0} height="90vh" overflowY="auto">
+          <VStack align="stretch" spacing={4} height={"100%"}>
             <Flex align="center" cursor="pointer" p={2} borderRadius="md" _hover={{ bg: 'gray.200' }} justifyContent={"space-between"} onClick={handleNewChat}>
               <Text fontWeight="bold">New Chat</Text>
               <Image src={NewChatIcon.src} alt="New Chat" boxSize="20px" ml={38} />
             </Flex>
-            {chats.map((chat, index) => (
-              <Flex key={index} align="center" cursor="pointer" p={2} borderRadius="md" _hover={{ bg: 'gray.200' }} justifyContent={"space-between"} onClick={() => handleChatSelect(chat.id)} >
-                <Text key={index} fontSize="sm" noOfLines={1} >
-                  {chat.title}
-                </Text>
-                <Image src={NewChatIcon.src} alt="New Chat" boxSize="20px" ml={38} />
-              </Flex>
-            ))}
-            <Button onClick={handleLogout}>Logout</Button>
+            <VStack align="stretch" spacing={2} flex={1} overflowY="auto">
+              {[...chats].reverse().map((chat, index) => (
+                <Flex key={index} align="center" cursor="pointer" p={2} borderRadius="md" _hover={{ bg: 'gray.200' }} justifyContent={"space-between"} onClick={() => handleChatSelect(chat.id)} >
+                  <Text key={index} fontSize="sm" noOfLines={1} >
+                    {chat.title}
+                  </Text>
+                  <Image src={NewChatIcon.src} alt="New Chat" boxSize="20px" ml={38} />
+                </Flex>
+              ))}
+            </VStack>
+            <Button onClick={handleLogout} marginTop="auto">Logout</Button>
           </VStack>
         </Box>
 

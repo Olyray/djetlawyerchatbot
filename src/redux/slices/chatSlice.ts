@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Chat, Message, ChatResponse, ChatState } from '../../types/chat';
 
+
+
 // Added: New async thunk for fetching chats
 export const fetchChats = createAsyncThunk(
   'chat/fetchChats',
@@ -20,7 +22,7 @@ export const fetchChats = createAsyncThunk(
 
 export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
-  async ({ message, chatId }: { message: string; chatId?: string }, { getState }) => {
+  async ({ message, chatId }: { message: string; chatId?: string }, { getState, dispatch }) => {
     const { auth } = getState() as { auth: { token: string } };
     const response = await fetch('http://127.0.0.1:8000/api/v1/chatbot/chat', {
       method: 'POST',
@@ -33,7 +35,12 @@ export const sendMessage = createAsyncThunk(
     if (!response.ok) {
       throw new Error('Failed to send message');
     }
-    return response.json() as Promise<ChatResponse>;
+    const data = await response.json() as ChatResponse;
+    if (!chatId) {
+      dispatch(setCurrentChat(data.chat_id));
+    }
+    
+    return data;
   }
 );
 
@@ -94,11 +101,17 @@ const chatSlice = createSlice({
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentChat.id = action.payload.chat_id;
+        if (!state.currentChat.id) {
+          state.currentChat.id = action.payload.chat_id;
+        }
         state.currentChat.messages.push(
           { id: Date.now().toString(), chat_id: action.payload.chat_id, content: action.meta.arg.message, role: 'human', created_at: new Date().toISOString() },
           { id: (Date.now() + 1).toString(), chat_id: action.payload.chat_id, content: action.payload.answer, role: 'assistant', created_at: new Date().toISOString() }
         );
+        if (!state.chats.some(chat => chat.id === action.payload.chat_id)) {
+          const now = new Date().toISOString();
+          state.chats.push({ id: action.payload.chat_id, title: action.meta.arg.message.slice(0, 30) + '...', created_at: now, updated_at: now });
+        }
       })
       .addCase(sendMessage.rejected, (state, action) => {
         state.loading = false;
