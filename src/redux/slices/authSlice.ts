@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction, AnyAction } from '@reduxj
 import { AuthState, User, RegisterResponse, LoginResponse, } from '../../types/auth';
 import axios from 'axios';
 import { HYDRATE } from 'next-redux-wrapper';
+import { setAuthToken } from '../../utils/tokenManager';
 
 type LoginFormData = {
   username: string;
@@ -11,6 +12,7 @@ type LoginFormData = {
 const initialState: AuthState = {
   user: null,
   token: null,
+  refreshToken: null,
   isLoading: false,
   error: null,
 };
@@ -43,6 +45,7 @@ export const loginUser = createAsyncThunk<LoginResponse, LoginFormData>(
           'Content-Type': 'multipart/form-data',
         },
       });
+      console.log(response.data);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -57,24 +60,33 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<{ user: User | null; token: string | null }>) => {
+    setCredentials: (state, action: PayloadAction<{ user: User | null; token: string | null; refreshToken: string | null }>) => {
       localStorage.setItem('user', JSON.stringify(action.payload.user));
       localStorage.setItem('token', action.payload.token || '');
+      localStorage.setItem('refreshToken', action.payload.refreshToken || ''); 
       state.user = action.payload.user;
       state.token = action.payload.token;
+      state.refreshToken = action.payload.refreshToken;
+      setAuthToken(action.payload.token); 
     },
     clearCredentials: (state) => {
       state.user = null;
       state.token = null;
+      state.refreshToken = null;
       localStorage.removeItem('user');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('token');
+      setAuthToken(null)
     },
     hydrateAuth: (state) => {
       const storedUser = localStorage.getItem('user');
       const storedToken = localStorage.getItem('token');
-      if (storedUser && storedToken) {
+      const storedRefreshToken = localStorage.getItem('refreshToken');
+      if (storedUser && storedToken && storedRefreshToken) {
         state.user = JSON.parse(storedUser);
         state.token = storedToken;
+        state.refreshToken = storedRefreshToken;
+        setAuthToken(storedToken);
       }
     },
   },
@@ -100,9 +112,10 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action: PayloadAction<LoginResponse, string, { arg: LoginFormData }>) => {
         state.isLoading = false;
         state.token = action.payload.access_token;
+        state.refreshToken = action.payload.refresh_token;
         state.user = { email: action.meta.arg.username, password: '' };
         authSlice.caseReducers.setCredentials(state, { 
-          payload: { user: state.user, token: action.payload.access_token },
+          payload: { user: state.user, token: action.payload.access_token, refreshToken: action.payload.refresh_token },
           type: setCredentials.type
         });
       })

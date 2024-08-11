@@ -22,6 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { IconContext } from 'react-icons';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 const FcGoogle = dynamic(() => import('react-icons/fc').then((mod) => mod.FcGoogle));
 import Navigation from '../../components/Navigation'; 
 import MaleUser from '../../../public/Male User.png';
@@ -43,6 +44,7 @@ const RegisterPage = () => {
 
   // Added toast for displaying messages
   const toast = useToast();
+  const router = useRouter();
 
   // Added handleRegister function
   const handleRegister = async () => {
@@ -60,11 +62,12 @@ const RegisterPage = () => {
     try {
       await dispatch(registerUser(userData)).unwrap();
       toast({
-        title: "Registration successful, Please check your email for a confirmation message",
+        title: "Registration successful",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
+      router.push('/chatbot');
     } catch (err) {
       toast({
         title: "Registration failed",
