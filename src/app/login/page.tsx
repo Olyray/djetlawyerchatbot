@@ -125,12 +125,12 @@ const LoginPage = () => {
                   </Button>
                 </Center>
                 <Text fontSize="sm" textAlign={"center"}>
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <Link color="orange.500" href="/register">
                     Sign Up
                   </Link>
                 </Text>
-                <Flex align="center" my={4}>
+                {/* <Flex align="center" my={4}>
                   <Divider flex={1} />
                   <Text mx={4} color="gray.500">
                     or
@@ -148,7 +148,7 @@ const LoginPage = () => {
                   >
                     Login with Google
                   </Button>
-                </Center>
+                </Center> */}
               </VStack>
             </Box>
           </Box>

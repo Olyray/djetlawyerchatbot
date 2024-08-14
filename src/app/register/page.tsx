@@ -166,7 +166,7 @@ const RegisterPage = () => {
                     Log In
                   </Link>
                 </Text>
-                <Flex align="center" my={4}>
+                {/* <Flex align="center" my={4}>
                   <Divider flex={1} />
                   <Text mx={4} color="gray.500">
                     or
@@ -184,7 +184,7 @@ const RegisterPage = () => {
                   >
                     Login with Google
                   </Button>
-                </Center>
+                </Center> */}
               </VStack>
             </Box>
           </Box>
