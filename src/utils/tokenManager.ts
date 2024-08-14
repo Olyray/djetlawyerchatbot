@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { AppDispatch } from '../redux/store';
 import { clearCredentials, setCredentials } from '../redux/slices/authSlice';
+import { API_BASE_URL } from '../utils/config';
 
-const REFRESH_ENDPOINT = 'http://127.0.0.1:8000/api/v1/auth/refresh';
+const REFRESH_ENDPOINT = `${API_BASE_URL}/api/v1/auth/refresh`;
 
 export const refreshToken = async (refreshToken: string, dispatch: AppDispatch) => {
   try {

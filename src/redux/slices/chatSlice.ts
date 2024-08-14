@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Chat, Message, ChatResponse, ChatState } from '../../types/chat';
+import { API_BASE_URL } from '../../utils/config';
 
 
 
@@ -8,7 +9,7 @@ export const fetchChats = createAsyncThunk(
   'chat/fetchChats',
   async (_, { getState }) => {
     const { auth } = getState() as { auth: { token: string } };
-    const response = await fetch('http://127.0.0.1:8000/api/v1/chat/chats', {
+    const response = await fetch(`${API_BASE_URL}/api/v1/chat/chats`, {
       headers: {
         'Authorization': `Bearer ${auth.token}`
       }
@@ -24,7 +25,7 @@ export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
   async ({ message, chatId }: { message: string; chatId?: string }, { getState, dispatch }) => {
     const { auth } = getState() as { auth: { token: string } };
-    const response = await fetch('http://127.0.0.1:8000/api/v1/chatbot/chat', {
+    const response = await fetch(`${API_BASE_URL}/api/v1/chatbot/chat`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${auth.token}`,
@@ -48,7 +49,7 @@ export const fetchChatHistory = createAsyncThunk(
   'chat/fetchChatHistory',
   async (chatId: string, { getState }) => {
     const { auth } = getState() as { auth: { token: string } };
-    const response = await fetch(`http://127.0.0.1:8000/api/v1/chat/chats/${chatId}/messages`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/chat/chats/${chatId}/messages`, {
       headers: {
         'Authorization': `Bearer ${auth.token}`,
       },

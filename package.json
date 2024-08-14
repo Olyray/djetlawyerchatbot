@@ -2,10 +2,13 @@
   "name": "djetlawyerchatbot",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "20.11.1"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p $PORT",
     "lint": "next lint"
   },
   "dependencies": {
@@ -15,6 +18,7 @@
     "@iconify/react": "^5.0.2",
     "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
     "framer-motion": "^11.3.12",
     "next": "14.2.5",
     "next-redux-wrapper": "^8.1.0",

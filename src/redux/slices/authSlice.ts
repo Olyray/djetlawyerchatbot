@@ -3,6 +3,7 @@ import { AuthState, User, RegisterResponse, LoginResponse, } from '../../types/a
 import axios from 'axios';
 import { HYDRATE } from 'next-redux-wrapper';
 import { setAuthToken } from '../../utils/tokenManager';
+import { API_BASE_URL } from '../../utils/config';
 
 type LoginFormData = {
   username: string;
@@ -21,7 +22,7 @@ export const registerUser = createAsyncThunk<RegisterResponse, User>(
   'auth/register',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post<RegisterResponse>('http://127.0.0.1:8000/api/v1/auth/register', userData);
+      const response = await axios.post<RegisterResponse>(`${API_BASE_URL}/api/v1/auth/register`, userData);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -40,7 +41,7 @@ export const loginUser = createAsyncThunk<LoginResponse, LoginFormData>(
       formData.append('username', loginData.username);
       formData.append('password', loginData.password);
       
-      const response = await axios.post<LoginResponse>('http://127.0.0.1:8000/api/v1/auth/login', formData, {
+      const response = await axios.post<LoginResponse>(`${API_BASE_URL}/api/v1/auth/login`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
