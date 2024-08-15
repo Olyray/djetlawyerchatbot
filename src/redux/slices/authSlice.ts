@@ -46,7 +46,6 @@ export const loginUser = createAsyncThunk<LoginResponse, LoginFormData>(
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(response.data);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
