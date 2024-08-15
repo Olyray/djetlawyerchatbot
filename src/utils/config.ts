@@ -4,7 +4,7 @@
 //   dotenv.config();
 // }
 
-console.log(process.env.PRODUCTION);
+console.log(process.env);
 
 export const API_BASE_URL = process.env.PRODUCTION === 'True'
   ? 'https://chatbotbackend-d5335f7520bc.herokuapp.com'
