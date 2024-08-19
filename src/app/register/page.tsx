@@ -18,7 +18,8 @@ import {
   InputLeftElement,
   Center, 
   Image,
-  useToast
+  useToast,
+  useBreakpointValue
 } from '@chakra-ui/react';
 import { IconContext } from 'react-icons';
 import dynamic from 'next/dynamic';
@@ -28,25 +29,30 @@ import Navigation from '../../components/Navigation';
 import MaleUser from '../../../public/Male User.png';
 import Email from '../../../public/Email.png';
 import Password from '../../../public/Security Lock.png';
-
-// Added import for User interface
 import { User } from '../../types/auth';
 
 const RegisterPage = () => {
-  // Added state for form inputs
+  //  state for form inputs
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Added Redux hooks
+  // Redux hooks
   const dispatch = useDispatch<AppDispatch>();
   const { isLoading, error } = useSelector((state: RootState) => state.auth);
 
-  // Added toast for displaying messages
+  // toast for displaying messages
   const toast = useToast();
   const router = useRouter();
 
-  // Added handleRegister function
+  // Responsive values
+  const boxWidth = useBreakpointValue({ base: "90%", sm: "80%", md: "70%", lg: "xl" });
+  const boxHeight = useBreakpointValue({ base: "auto", md: "45em" });
+  const inputWidth = useBreakpointValue({ base: "100%", sm: "90%", md: "80%" });
+  const fontSize = useBreakpointValue({ base: "xl", md: "2xl" });
+  const buttonHeight = useBreakpointValue({ base: "50px", md: "60px" });
+
+
   const handleRegister = async () => {
     if (password !== confirmPassword) {
       toast({
@@ -82,20 +88,20 @@ const RegisterPage = () => {
   return (
     <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
       <Flex direction="column" minHeight="100vh">
+        {/* Navigation component */}  
         <Navigation />
         <Flex flex={1} width="full" align="center" justifyContent="center">
-          <Box width="full" maxWidth="xl" p={8}>
-            <Box borderWidth={1} borderRadius={"40px"} borderColor="orange.500" p={8} boxShadow="lg" bg="#f8f7f7" height={"45em"} >
+          <Box width={boxWidth} p={4}>
+            <Box borderWidth={1} borderRadius={"40px"} borderColor="orange.500" p={8} boxShadow="lg" bg="#f8f7f7" height={boxHeight} >
               <VStack spacing={4} align="stretch">
                 <Flex justifyContent="center" mb={0}>
-                  <Image src={MaleUser.src} alt="Male User"  />
+                  <Image src={MaleUser.src} alt="Male User"  boxSize={{ base: "60px", md: "80px" }} />
                 </Flex>
-                <Text fontSize="2xl" textAlign="center" mb={4}>
+                <Text fontSize={fontSize} textAlign="center" mb={4}>
                   Create an Account
                 </Text>
-                {/* Modified: Added value and onChange props to Input */}
                 <Center>
-                  <FormControl width={"80%"} >
+                  <FormControl width={inputWidth} >
                     <InputGroup>
                       <InputLeftElement pointerEvents="none" alignItems={"center"} height="100%" >
                         <Image src={Email.src} alt="Email" />
@@ -110,9 +116,8 @@ const RegisterPage = () => {
                     </InputGroup>
                   </FormControl>
                 </Center>
-                {/* Modified: Added value and onChange props to Input */}
                 <Center>
-                  <FormControl width={"80%"}>
+                  <FormControl width={inputWidth}>
                     <InputGroup>
                       <InputLeftElement pointerEvents="none" height="100%" >
                         <Image src={Password.src} alt="Password" />
@@ -128,9 +133,8 @@ const RegisterPage = () => {
                     </InputGroup>
                   </FormControl>
                 </Center>
-                {/* Modified: Added value and onChange props to Input */}
                 <Center>
-                  <FormControl width={"80%"}>
+                  <FormControl width={inputWidth}>
                     <InputGroup>
                       <InputLeftElement pointerEvents="none" height="100%" >
                         <Image src={Password.src} alt="Password" />
@@ -146,13 +150,12 @@ const RegisterPage = () => {
                     </InputGroup>
                   </FormControl>
                 </Center>
-                {/* Modified: Added onClick and isLoading props to Button */}
                 <Center>
                   <Button
                     colorScheme="orange"
                     size="lg"
-                    width="80%"
-                    height="60px"
+                    width={inputWidth}
+                    height={buttonHeight}
                     mt={4}
                     onClick={handleRegister}
                     isLoading={isLoading}
