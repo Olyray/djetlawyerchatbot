@@ -5,5 +5,5 @@
 // }
 
 export const API_BASE_URL = process.env.NODE_ENV == 'production'
-  ? 'https://chatbotbackend-d5335f7520bc.herokuapp.com'
+  ? 'https://staging-chatbotbackend-050d187727dc.herokuapp.com/'
   : 'http://127.0.0.1:8000';
