@@ -37,8 +37,6 @@ export const loginUser = createAsyncThunk<LoginResponse, LoginFormData>(
   'auth/login',
   async (loginData, { rejectWithValue }) => {
     try {
-      console.log(API_BASE_URL);
-      console.log(API_BASE_URL);
       const formData = new FormData();
       formData.append('username', loginData.username);
       formData.append('password', loginData.password);
