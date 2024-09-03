@@ -31,16 +31,16 @@ const Navigation = () => {
         justifyContent="space-between"
         alignItems="center"
       >
-        <Link href="https://djetlawyer.com" passHref>
+        <Link href="https://djetlawyer.com" passHref legacyBehavior>
           <ChakraLink>
             <Image src={Logo.src} alt="dJetLawyer Logo" height={{ base: "40px", md: "60px" }} />
           </ChakraLink>
         </Link>
         <Flex display={displayMenu}>
-          <Link href="https://djetlawyer.com/about/" passHref><ChakraLink><Text mr={8} fontSize="lg">About</Text></ChakraLink></Link>
-          <Link href="https://djetlawyer.com/blog/" passHref><ChakraLink><Text mr={8} fontSize="lg">Blog</Text></ChakraLink></Link>
-          <Link href="/register" passHref><ChakraLink><Text mr={8} fontSize="lg">Sign up</Text></ChakraLink></Link>
-          <Link href="/login" passHref><ChakraLink><Text fontSize="lg">Login</Text></ChakraLink></Link>
+          <Link href="https://djetlawyer.com/about/" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">About</Text></ChakraLink></Link>
+          <Link href="https://djetlawyer.com/blog/" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Blog</Text></ChakraLink></Link>
+          <Link href="/register" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Sign up</Text></ChakraLink></Link>
+          <Link href="/login" passHref legacyBehavior><ChakraLink><Text fontSize="lg">Login</Text></ChakraLink></Link>
         </Flex>
         <Button colorScheme="orange" size="md" display={displayMenu}>
           Contact Us
@@ -54,10 +54,10 @@ const Navigation = () => {
               variant='outline'
             />
             <MenuList>
-              <Link href="/about" passHref><MenuItem as={ChakraLink}>About</MenuItem></Link>
-              <Link href="/blog" passHref><MenuItem as={ChakraLink}>Blog</MenuItem></Link>
-              <Link href="/register" passHref><MenuItem as={ChakraLink}>Sign up</MenuItem></Link>
-              <Link href="/login" passHref><MenuItem as={ChakraLink}>Login</MenuItem></Link>
+              <Link href="/about" passHref legacyBehavior><MenuItem as={ChakraLink}>About</MenuItem></Link>
+              <Link href="/blog" passHref legacyBehavior><MenuItem as={ChakraLink}>Blog</MenuItem></Link>
+              <Link href="/register" passHref legacyBehavior><MenuItem as={ChakraLink}>Sign up</MenuItem></Link>
+              <Link href="/login" passHref legacyBehavior><MenuItem as={ChakraLink}>Login</MenuItem></Link>
               <MenuItem as={Button} colorScheme="orange" width="100%">Contact Us</MenuItem>
             </MenuList>
           </Menu>
