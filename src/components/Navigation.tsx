@@ -54,8 +54,8 @@ const Navigation = () => {
               variant='outline'
             />
             <MenuList>
-              <Link href="/about" passHref legacyBehavior><MenuItem as={ChakraLink}>About</MenuItem></Link>
-              <Link href="/blog" passHref legacyBehavior><MenuItem as={ChakraLink}>Blog</MenuItem></Link>
+              <Link href="https://djetlawyer.com/about/" passHref legacyBehavior><MenuItem as={ChakraLink}>About</MenuItem></Link>
+              <Link href="https://djetlawyer.com/blog/" passHref legacyBehavior><MenuItem as={ChakraLink}>Blog</MenuItem></Link>
               <Link href="/register" passHref legacyBehavior><MenuItem as={ChakraLink}>Sign up</MenuItem></Link>
               <Link href="/login" passHref legacyBehavior><MenuItem as={ChakraLink}>Login</MenuItem></Link>
               <MenuItem as={Button} colorScheme="orange" width="100%">Contact Us</MenuItem>
