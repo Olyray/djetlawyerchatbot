@@ -32,3 +32,24 @@ export interface ChatState {
   loading: boolean;
   error: string | null;
 }
+
+export interface ChatAreaProps {
+  inputMessage: string;
+  setInputMessage: (message: string) => void;
+  handleSendMessage: () => void;
+  isSending: boolean;
+  pendingMessage: string | null;
+  isMobile: boolean;
+}
+
+export interface InputAreaProps {
+  inputMessage: string;
+  setInputMessage: (message: string) => void;
+  handleSendMessage: () => void;
+  isSending: boolean;
+  isMobile: boolean;
+}
+
+export interface SuggestedQuestionsProps {
+  setInputMessage: (message: string) => void;
+}

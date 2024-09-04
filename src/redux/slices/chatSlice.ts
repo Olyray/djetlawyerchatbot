@@ -3,8 +3,6 @@ import { Chat, Message, ChatResponse, ChatState } from '../../types/chat';
 import { API_BASE_URL } from '../../utils/config';
 
 
-
-// Added: New async thunk for fetching chats
 export const fetchChats = createAsyncThunk(
   'chat/fetchChats',
   async (_, { getState }) => {
