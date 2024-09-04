@@ -28,7 +28,6 @@ import {
   DrawerContent,
   DrawerCloseButton,
   IconButton,
-  Textarea
 } from '@chakra-ui/react';
 import Logo from '../../../public/dJetLawyer_logo.png';
 import NewChatIcon from '../../../public/new-chat-icon.png';
@@ -36,6 +35,7 @@ import BotIcon from '../../../public/bot-icon.png';
 import SendIcon from '../../../public/send-icon.png';
 import ReactMarkdown from 'react-markdown';
 import { Icon } from '@iconify/react';
+import TextareaAutosize from 'react-textarea-autosize';
 
 const ChatbotPage = () => {
   const router = useRouter();
@@ -50,7 +50,6 @@ const ChatbotPage = () => {
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [isMultiline, setIsMultiline] = useState(false);
 
   const suggestedQuestions = [
     { title: 'What is Cyber law', description: 'Detailed Explanation' },
@@ -93,7 +92,6 @@ const ChatbotPage = () => {
         .then((response) => {
           setInputMessage('');
           setPendingMessage(null);
-          setIsMultiline(false);
         })
         .catch((error) => {
           toast({
@@ -246,20 +244,26 @@ const ChatbotPage = () => {
           {/* Input Area */}
           <Flex mt={5} align="center" width={["100%", "100%", "70em"]}>
             <InputGroup>
-              <Textarea
-                flex={1}
+              <TextareaAutosize
+                minRows={1}
+                maxRows={5}
                 placeholder="Explain Company Law"
-                size={["md", "lg", "xl"]}
-                mr={4}
-                borderRadius="full"
-                minHeight={isMultiline ? "100px" : "50px"}
                 value={inputMessage}
                 onChange={(e) => {
                   setInputMessage(e.target.value);
-                  setIsMultiline(e.target.value.includes('\n'));
                 }}
                 onKeyDown={handleKeyPress}
-                resize="vertical"
+                style={{
+                  flex: 1,
+                  marginRight: '1rem',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.375rem',
+                  resize: 'none',
+                  border: '1px solid',
+                  borderColor: 'inherit',
+                  fontSize: '1rem',
+                  lineHeight: '1.5',
+                }}
               />
               <InputRightElement alignItems={"center"} width="70px" height="100%">
                 {isSending ? (
