@@ -105,7 +105,7 @@ const chatSlice = createSlice({
         }
         state.currentChat.messages.push(
           { id: Date.now().toString(), chat_id: action.payload.chat_id, content: action.meta.arg.message, role: 'human', created_at: new Date().toISOString() },
-          { id: (Date.now() + 1).toString(), chat_id: action.payload.chat_id, content: action.payload.answer, role: 'assistant', created_at: new Date().toISOString() }
+          { id: (Date.now() + 1).toString(), chat_id: action.payload.chat_id, content: action.payload.answer, role: 'assistant', created_at: new Date().toISOString(), sources: action.payload.sources }
         );
         if (!state.chats.some(chat => chat.id === action.payload.chat_id)) {
           const now = new Date().toISOString();

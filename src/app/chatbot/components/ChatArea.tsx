@@ -1,12 +1,12 @@
 import React, { useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
-import { Flex, VStack, Box, Image, Text } from '@chakra-ui/react';
+import { Flex, VStack, Box, Image, Text, Link } from '@chakra-ui/react';
 import ReactMarkdown from 'react-markdown';
 import BotIcon from '../../../../public/bot-icon.png';
 import SuggestedQuestions from './SuggestedQuestions';
 import InputArea from './InputArea';
-import { ChatAreaProps } from '@/types/chat';
+import { ChatAreaProps, Message, Source } from '@/types/chat';
 
 const ChatArea: React.FC<ChatAreaProps> = ({
   inputMessage,
@@ -23,6 +23,23 @@ const ChatArea: React.FC<ChatAreaProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentChat.messages, pendingMessage]);
 
+  const renderSources = (sources?: Source[]) => {
+    if (!sources || sources.length === 0) return null;
+  
+    return (
+      <Box mt={2}>
+        <Text fontWeight="bold" fontSize="sm" mb={1}>Sources:</Text>
+        <VStack align="start" spacing={1}>
+          {Array.from(new Set(sources.map(source => source.url))).map((url, index) => (
+            <Link key={index} href={url} isExternal color="blue.500" fontSize="sm">
+              {url}
+            </Link>
+          ))}
+        </VStack>
+      </Box>
+    );
+  };
+
   const renderMessages = () => {
     return (
       <>
@@ -35,6 +52,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
             borderRadius="md"
           >
             <ReactMarkdown>{message.content}</ReactMarkdown>
+            {renderSources(message.sources)}
           </Box>
         ))}
         {pendingMessage && (

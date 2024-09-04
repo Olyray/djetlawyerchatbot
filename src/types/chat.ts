@@ -11,6 +11,7 @@ export interface Message {
   content: string;
   role: 'human' | 'assistant';
   created_at: string;
+  sources?: Source[];
 }
 
 export interface ChatResponse {
@@ -28,6 +29,7 @@ export interface ChatState {
   currentChat: {
     id: string | null;
     messages: Message[];
+    
   };
   loading: boolean;
   error: string | null;
