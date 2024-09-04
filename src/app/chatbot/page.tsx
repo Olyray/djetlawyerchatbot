@@ -28,6 +28,7 @@ import {
   DrawerContent,
   DrawerCloseButton,
   IconButton,
+  Textarea
 } from '@chakra-ui/react';
 import Logo from '../../../public/dJetLawyer_logo.png';
 import NewChatIcon from '../../../public/new-chat-icon.png';
@@ -49,6 +50,7 @@ const ChatbotPage = () => {
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isMultiline, setIsMultiline] = useState(false);
 
   const suggestedQuestions = [
     { title: 'What is Cyber law', description: 'Detailed Explanation' },
@@ -91,6 +93,7 @@ const ChatbotPage = () => {
         .then((response) => {
           setInputMessage('');
           setPendingMessage(null);
+          setIsMultiline(false);
         })
         .catch((error) => {
           toast({
@@ -111,6 +114,13 @@ const ChatbotPage = () => {
   const handleLogout = () => {
     logout();
     router.push('/login');
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
 
@@ -236,16 +246,20 @@ const ChatbotPage = () => {
           {/* Input Area */}
           <Flex mt={5} align="center" width={["100%", "100%", "70em"]}>
             <InputGroup>
-              <Input
+              <Textarea
                 flex={1}
                 placeholder="Explain Company Law"
                 size={["md", "lg", "xl"]}
                 mr={4}
                 borderRadius="full"
-                height={["50px", "60px"]}
+                minHeight={isMultiline ? "100px" : "50px"}
                 value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                onChange={(e) => {
+                  setInputMessage(e.target.value);
+                  setIsMultiline(e.target.value.includes('\n'));
+                }}
+                onKeyDown={handleKeyPress}
+                resize="vertical"
               />
               <InputRightElement alignItems={"center"} width="70px" height="100%">
                 {isSending ? (
