@@ -50,6 +50,7 @@ const ChatbotPage = () => {
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isMobile, setIsMobile] = useState(false);
 
   const suggestedQuestions = [
     { title: 'What is Cyber law', description: 'Detailed Explanation' },
@@ -114,10 +115,26 @@ const ChatbotPage = () => {
     router.push('/login');
   };
 
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768); // Adjust this breakpoint as needed
+    };
+
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
+
+
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+    if (e.key === 'Enter') {
+      if (isMobile) {
+        return;
+      } else if (!e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+      }
     }
   };
 
