@@ -24,13 +24,13 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   }, [currentChat.messages, pendingMessage]);
 
   const renderSources = (sources?: Source[]) => {
-    if (!sources || sources.length === 0) return null;
+    if (!sources || sources.length < 2) return null;
   
     return (
       <Box mt={2}>
         <Text fontWeight="bold" fontSize="sm" mb={1}>Sources:</Text>
         <VStack align="start" spacing={1}>
-          {Array.from(new Set(sources.map(source => source.url))).map((url, index) => (
+          {Array.from(new Set(sources?.map(source => source?.url) ?? [])).map((url, index) => (
             <Link key={index} href={url} isExternal color="blue.500" fontSize="sm">
               {url}
             </Link>
@@ -52,7 +52,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
             borderRadius="md"
           >
             <ReactMarkdown>{message.content}</ReactMarkdown>
-            {renderSources(message.sources)}
+            {message.sources && renderSources(message.sources)}
           </Box>
         ))}
         {pendingMessage && (
