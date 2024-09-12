@@ -41,7 +41,7 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     const loginData = {
-      username: email,
+      username: email.toLowerCase(),
       password: password
     };
     try {
