@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux/store';
-import { registerUser } from '../../redux/slices/authSlice';
+import { registerUser, setCredentials } from '../../redux/slices/authSlice';
 import { 
   Box, 
   Button, 
@@ -30,6 +30,9 @@ import MaleUser from '../../../public/Male User.png';
 import Email from '../../../public/Email.png';
 import Password from '../../../public/Security Lock.png';
 import { User } from '../../types/auth';
+import axios from 'axios';
+import { API_BASE_URL } from '@/utils/config';
+
 
 const RegisterPage = () => {
   //  state for form inputs
@@ -78,6 +81,42 @@ const RegisterPage = () => {
       toast({
         title: "Registration failed",
         description: error || "An error occurred",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    window.google.accounts.id.initialize({
+      client_id: '999929627560-bia2rjj7a5m8mn418ieu6gtkmvfonhn8.apps.googleusercontent.com',
+      callback: handleGoogleSignInCallback
+    });
+    window.google.accounts.id.prompt();
+  };
+  
+  const handleGoogleSignInCallback = async (response: any) => {
+    const idToken = response.credential;
+    try {
+      // Send the idToken to your backend for verification
+      const result = await axios.post(`${API_BASE_URL}/api/v1/auth/google-login`, { token: idToken });
+      dispatch(setCredentials({
+        user: result.data.user,
+        token: result.data.access_token,
+        refreshToken: result.data.refresh_token
+      }));
+      toast({
+        title: "Google Sign-In successful",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      router.push('/chatbot');
+    } catch (error) {
+      toast({
+        title: "Google Sign-In failed",
+        description: "An error occurred",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -169,7 +208,7 @@ const RegisterPage = () => {
                     Log In
                   </Link>
                 </Text>
-                {/* <Flex align="center" my={4}>
+                <Flex align="center" my={4}>
                   <Divider flex={1} />
                   <Text mx={4} color="gray.500">
                     or
@@ -184,10 +223,11 @@ const RegisterPage = () => {
                     width="80%"
                     mt={"8px"}
                     height={"60px"}
+                    onClick={handleGoogleSignIn}
                   >
                     Login with Google
                   </Button>
-                </Center> */}
+                </Center>
               </VStack>
             </Box>
           </Box>

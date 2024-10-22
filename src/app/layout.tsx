@@ -4,6 +4,7 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { Provider } from 'react-redux';
 import { store } from '../redux/store';
 import AuthPersistenceWrapper from '../components/AuthPersistenceWrapper';
+import Script from 'next/script';
 
 export default function RootLayout({
   children,
@@ -12,6 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <Script src="https://accounts.google.com/gsi/client" async defer />
+      </head>
       <body>
         {/* Added: Wrapped ChakraProvider with Redux Provider */}
         <Provider store={store}>
