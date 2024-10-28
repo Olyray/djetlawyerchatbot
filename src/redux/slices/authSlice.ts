@@ -41,12 +41,12 @@ export const loginUser = createAsyncThunk<LoginResponse, LoginFormData>(
       formData.append('username', loginData.username);
       formData.append('password', loginData.password);
       
+      console.log(`The Base URL - ${API_BASE_URL}`);
       const response = await axios.post<LoginResponse>(`${API_BASE_URL}/api/v1/auth/login`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(API_BASE_URL);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
