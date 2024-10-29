@@ -42,9 +42,11 @@ const Navigation = () => {
           <Link href="/register" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Sign up</Text></ChakraLink></Link>
           <Link href="/login" passHref legacyBehavior><ChakraLink><Text fontSize="lg">Login</Text></ChakraLink></Link>
         </Flex>
-        <Button colorScheme="orange" size="md" display={displayMenu}>
-          Contact Us
-        </Button>
+        <Link href="https://djetlawyer.com/contact/" passHref legacyBehavior>
+          <Button colorScheme="orange" size="md" display={displayMenu}>
+            Contact Us
+          </Button>
+        </Link>
         <Box display={displayMobileMenu}>
           <Menu>
             <MenuButton
@@ -58,7 +60,9 @@ const Navigation = () => {
               <Link href="https://djetlawyer.com/blog/" passHref legacyBehavior><MenuItem as={ChakraLink}>Blog</MenuItem></Link>
               <Link href="/register" passHref legacyBehavior><MenuItem as={ChakraLink}>Sign up</MenuItem></Link>
               <Link href="/login" passHref legacyBehavior><MenuItem as={ChakraLink}>Login</MenuItem></Link>
-              <MenuItem as={Button} colorScheme="orange" width="100%">Contact Us</MenuItem>
+              <Link href="https://djetlawyer.com/contact/" passHref legacyBehavior>
+                <MenuItem as={Button} colorScheme="orange" width="100%">Contact Us</MenuItem>
+              </Link>
             </MenuList>
           </Menu>
         </Box>

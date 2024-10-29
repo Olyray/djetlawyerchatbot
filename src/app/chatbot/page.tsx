@@ -49,11 +49,19 @@ const ChatbotPage = () => {
   }, []);
 
   useEffect(() => {
-    if (!isLoading && !token) {
-      router.push('/login');
-    } else if (token) {
-      dispatch(fetchChats());
-    }
+    const checkAuth = async () => {
+      if (!isLoading && !token) {
+        router.push('/login');
+      } else if (token) {
+        try {
+          await dispatch(fetchChats()).unwrap();
+        } catch (error) {
+          router.push('/login');
+        }
+      }
+    };
+  
+    checkAuth();
   }, [isHydrated, isLoading, token]);
 
   useEffect(() => {
