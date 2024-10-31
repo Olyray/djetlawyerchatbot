@@ -5,13 +5,17 @@ import { Provider } from 'react-redux';
 import { store } from '../redux/store';
 import AuthPersistenceWrapper from '../components/AuthPersistenceWrapper';
 import Script from 'next/script';
-import '../utils/axiosConfig'; 
+import { useEffect } from 'react';
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  useEffect(() => {
+    require('../utils/axiosConfig');
+  }, []);
+
   return (
     <html lang="en">
       <head>
