@@ -9,6 +9,7 @@ axios.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       const state = store.getState();
+      console.log('Axios Interceptor Working');
       const { refreshToken: storedRefreshToken } = state.auth;
       
       if (storedRefreshToken) {
