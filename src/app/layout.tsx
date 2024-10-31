@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { store } from '../redux/store';
 import AuthPersistenceWrapper from '../components/AuthPersistenceWrapper';
 import Script from 'next/script';
+import '../utils/axiosConfig'; 
 
 export default function RootLayout({
   children,
