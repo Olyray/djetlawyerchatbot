@@ -6,17 +6,12 @@ import { store } from '../redux/store';
 import AuthPersistenceWrapper from '../components/AuthPersistenceWrapper';
 import Script from 'next/script';
 import { useEffect } from 'react';
-import { setupAxiosInterceptors } from '../utils/axiosConfig';
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  useEffect(() => {
-    setupAxiosInterceptors();
-  }, []);
-
   return (
     <html lang="en">
       <head>

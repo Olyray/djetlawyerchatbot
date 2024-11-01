@@ -1,17 +1,38 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { useDispatch } from 'react-redux';
 import { Chat, Message, ChatResponse, ChatState } from '../../types/chat';
 import { API_BASE_URL } from '../../utils/config';
+import { refreshToken } from '../../utils/tokenManager';
+import { clearCredentials } from './authSlice';
 
+const dispatch = useDispatch();
 
 export const fetchChats = createAsyncThunk(
   'chat/fetchChats',
   async (_, { getState }) => {
-    const { auth } = getState() as { auth: { token: string } };
-    const response = await fetch(`${API_BASE_URL}/api/v1/chat/chats`, {
+    const { auth } = getState() as { auth: { token: string; refreshToken: string } };
+    let response = await fetch(`${API_BASE_URL}/api/v1/chat/chats`, {
       headers: {
         'Authorization': `Bearer ${auth.token}`
       }
     });
+
+    if (response.status === 401 && auth.refreshToken) {
+      console.log('Refreshing token...');
+      try {
+        await refreshToken(auth.refreshToken, dispatch);
+        const newState = getState() as { auth: { token: string } };
+        response = await fetch(`${API_BASE_URL}/api/v1/chat/chats`, {
+          headers: {
+            'Authorization': `Bearer ${newState.auth.token}`
+          }
+        });
+      } catch (refreshError) {
+        dispatch(clearCredentials());
+        throw new Error('Authentication failed');
+      }
+    }
+
     if (!response.ok) {
       throw new Error('Failed to fetch chats');
     }

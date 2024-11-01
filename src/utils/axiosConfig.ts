@@ -1,30 +1,41 @@
-import axios from 'axios';
-import { refreshToken } from './tokenManager';
 import { store } from '../redux/store';
 import { clearCredentials } from '../redux/slices/authSlice';
+import { refreshToken } from './tokenManager';
 
-export function setupAxiosInterceptors() {
-    console.log('Interceptor set up')
-    axios.interceptors.response.use(
-        (response) => {
-            return response;
-        },
-        async (error) => {
-            console.log('401 Error interceptor triggered');
-            if (error.response?.status === 401) {
-                const state = store.getState();
-                const { refreshToken: storedRefreshToken } = state.auth;
+export async function fetchWithInterceptor(url: string, options: RequestInit = {}) {
+    let response = await fetch(url, options);
+    if (response.status === 401) {
+        const state = store.getState();
+        const { refreshToken: storedRefreshToken } = state.auth;
+        if (storedRefreshToken) {
+            try {
+                // Try to refresh the token
+                await refreshToken(storedRefreshToken, store.dispatch);
                 
-                if (storedRefreshToken) {
-                    try {
-                        await refreshToken(storedRefreshToken, store.dispatch);
-                        return axios(error.config);
-                    } catch (refreshError) {
-                        store.dispatch(clearCredentials());
+                // If refresh successful, retry the original request
+                // We need to get the new token from the store
+                const newState = store.getState();
+                const newOptions = {
+                    ...options,
+                    headers: {
+                        ...options.headers,
+                        'Authorization': `Bearer ${newState.auth.token}`
                     }
-                }
+                };
+                
+                // Retry the original request with the new token
+                response = await fetch(url, newOptions);
+            } catch (refreshError) {
+                store.dispatch(clearCredentials());
+                throw new Error('Authentication failed');
             }
-            return Promise.reject(error);
         }
-    );
+    }
+
+    // If response is not ok after all attempts, throw an error
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response;
 }
