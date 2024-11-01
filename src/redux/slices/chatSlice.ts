@@ -3,11 +3,11 @@ import { Chat, Message, ChatResponse, ChatState } from '../../types/chat';
 import { API_BASE_URL } from '../../utils/config';
 import { refreshToken } from '../../utils/tokenManager';
 import { clearCredentials } from './authSlice';
-import { store } from '../store'; 
+import { AppDispatch } from '../store';
 
 export const fetchChats = createAsyncThunk(
   'chat/fetchChats',
-  async (_, { getState }) => {
+  async (_, { getState, dispatch }) => {
     const { auth } = getState() as { auth: { token: string; refreshToken: string } };
     let response = await fetch(`${API_BASE_URL}/api/v1/chat/chats`, {
       headers: {
@@ -18,7 +18,7 @@ export const fetchChats = createAsyncThunk(
     if (response.status === 401 && auth.refreshToken) {
       console.log('Refreshing token...');
       try {
-        await refreshToken(auth.refreshToken, store.dispatch);
+        await refreshToken(auth.refreshToken, dispatch as AppDispatch);
         const newState = getState() as { auth: { token: string } };
         response = await fetch(`${API_BASE_URL}/api/v1/chat/chats`, {
           headers: {
@@ -26,7 +26,7 @@ export const fetchChats = createAsyncThunk(
           }
         });
       } catch (refreshError) {
-        store.dispatch(clearCredentials());
+        dispatch(clearCredentials());
         throw new Error('Authentication failed');
       }
     }
