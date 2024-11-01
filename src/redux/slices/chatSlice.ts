@@ -1,11 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { useDispatch } from 'react-redux';
 import { Chat, Message, ChatResponse, ChatState } from '../../types/chat';
 import { API_BASE_URL } from '../../utils/config';
 import { refreshToken } from '../../utils/tokenManager';
 import { clearCredentials } from './authSlice';
-
-const dispatch = useDispatch();
+import { store } from '../store'; 
 
 export const fetchChats = createAsyncThunk(
   'chat/fetchChats',
@@ -20,7 +18,7 @@ export const fetchChats = createAsyncThunk(
     if (response.status === 401 && auth.refreshToken) {
       console.log('Refreshing token...');
       try {
-        await refreshToken(auth.refreshToken, dispatch);
+        await refreshToken(auth.refreshToken, store.dispatch);
         const newState = getState() as { auth: { token: string } };
         response = await fetch(`${API_BASE_URL}/api/v1/chat/chats`, {
           headers: {
@@ -28,7 +26,7 @@ export const fetchChats = createAsyncThunk(
           }
         });
       } catch (refreshError) {
-        dispatch(clearCredentials());
+        store.dispatch(clearCredentials());
         throw new Error('Authentication failed');
       }
     }
