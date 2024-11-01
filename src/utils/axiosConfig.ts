@@ -4,6 +4,7 @@ import { store } from '../redux/store';
 import { clearCredentials } from '../redux/slices/authSlice';
 
 export function setupAxiosInterceptors() {
+    console.log('Interceptor set up')
     axios.interceptors.response.use(
         (response) => {
             return response;
