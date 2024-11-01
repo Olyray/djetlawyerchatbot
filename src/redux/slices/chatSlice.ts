@@ -1,21 +1,26 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Chat, Message, ChatResponse, ChatState } from '../../types/chat';
 import { API_BASE_URL } from '../../utils/config';
+import axios from 'axios';
 
 
 export const fetchChats = createAsyncThunk(
   'chat/fetchChats',
   async (_, { getState }) => {
     const { auth } = getState() as { auth: { token: string } };
-    const response = await fetch(`${API_BASE_URL}/api/v1/chat/chats`, {
-      headers: {
-        'Authorization': `Bearer ${auth.token}`
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/v1/chat/chats`, {
+        headers: {
+          'Authorization': `Bearer ${auth.token}`
+        }
+      });
+      return response.data; 
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch chats');
       }
-    });
-    if (!response.ok) {
-      throw new Error('Failed to fetch chats');
+      throw error;
     }
-    return response.json();
   }
 );
 
