@@ -16,7 +16,6 @@ export const fetchChats = createAsyncThunk(
     });
 
     if (response.status === 401 && auth.refreshToken) {
-      console.log('Refreshing token...');
       try {
         await refreshToken(auth.refreshToken, dispatch as AppDispatch);
         const newState = getState() as { auth: { token: string } };

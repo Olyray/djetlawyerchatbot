@@ -54,7 +54,6 @@ const ChatbotPage = () => {
         router.push('/login');
       } else if (token) {
         try {
-          console.log('Fetching chats...');
           await dispatch(fetchChats()).unwrap();
         } catch (error) {
           router.push('/login');
