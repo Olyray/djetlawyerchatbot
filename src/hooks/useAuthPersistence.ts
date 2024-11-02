@@ -19,6 +19,7 @@ export const useAuthPersistence = () => {
           await refreshToken(storedRefreshToken, dispatch);
         } catch (error) {
           console.error('Failed to refresh token:', error);
+          console.log('refreshInterval Error');
           dispatch(clearCredentials());
         }
       }, 25 * 60 * 1000);
@@ -28,6 +29,7 @@ export const useAuthPersistence = () => {
   }, [token, storedRefreshToken, dispatch]);
 
   const logout = () => {
+    console.log('logout');
     dispatch(clearCredentials());
   };
 

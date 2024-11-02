@@ -18,6 +18,7 @@ export const refreshToken = async (refreshToken: string, dispatch: AppDispatch) 
 
     return access_token;
   } catch (error) {
+    console.log('tokenManager Refreshtoken error');
     dispatch(clearCredentials());
     throw error;
   }
