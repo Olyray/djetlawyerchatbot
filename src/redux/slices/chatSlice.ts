@@ -25,7 +25,6 @@ export const fetchChats = createAsyncThunk(
           }
         });
       } catch (refreshError) {
-        console.log(refreshError);
         dispatch(clearCredentials());
         throw new Error('Authentication failed');
       }
