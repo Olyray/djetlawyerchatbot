@@ -55,10 +55,11 @@ const LoginPage = () => {
         isClosable: true,
       });
       router.push('/chatbot');
-    } catch (err) {
+    } catch (err: any) {
+      console.error(err.detail);
       toast({
         title: "Login failed",
-        description: error || "An error occurred",
+        description: err.detail,
         status: "error",
         duration: 3000,
         isClosable: true,
