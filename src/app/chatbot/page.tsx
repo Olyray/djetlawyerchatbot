@@ -95,6 +95,7 @@ const ChatbotPage = () => {
           handleNewChat={handleNewChat}
           handleChatSelect={handleChatSelect}
           handleLogout={handleLogout}
+          onClose={onClose}
         />
 
         <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
@@ -107,6 +108,7 @@ const ChatbotPage = () => {
                 handleNewChat={handleNewChat}
                 handleChatSelect={handleChatSelect}
                 handleLogout={handleLogout}
+                onClose={onClose}
               />
             </DrawerBody>
           </DrawerContent>

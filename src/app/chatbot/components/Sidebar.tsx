@@ -9,9 +9,10 @@ interface SidebarProps {
   handleChatSelect: (chatId: string) => void;
   handleLogout: () => void;
   display?: any;
+  onClose?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, handleLogout, display }) => {
+const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, handleLogout, display, onClose }) => {
   const { chats } = useSelector((state: RootState) => state.chat);
 
   return (
@@ -49,7 +50,10 @@ const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, hand
               borderRadius="md"
               _hover={{ bg: 'gray.200' }}
               justifyContent="space-between"
-              onClick={() => handleChatSelect(chat.id)}
+              onClick={() => {
+                handleChatSelect(chat.id);
+                onClose?.();
+              }}
             >
               <Text fontSize="sm" noOfLines={1}>
                 {chat.title}
