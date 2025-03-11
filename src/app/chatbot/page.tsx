@@ -76,8 +76,20 @@ const ChatbotPage = () => {
   }, []);
 
   return (
-    <Flex direction="column" minHeight="100vh">
-      <Flex p={4} justifyContent="space-between" alignItems="center">
+    <Flex direction="column" height="100vh">
+      <Flex
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        p={4}
+        justifyContent="space-between"
+        alignItems="center"
+        bg="white"
+        zIndex={1000}
+        borderBottom="1px"
+        borderColor="gray.200"
+      >
         <Box p={4}>
           <Image src={Logo.src} alt="dJetLawyer Logo" height={["40px", "60px"]} />
         </Box>
@@ -89,7 +101,7 @@ const ChatbotPage = () => {
         />
       </Flex>
 
-      <Flex flex={1} width="full">
+      <Flex pt="100px" flex={1} width="full">
         <Sidebar
           display={["none", "none", "block"]}
           handleNewChat={handleNewChat}
