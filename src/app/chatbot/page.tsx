@@ -87,7 +87,6 @@ const ChatbotPage = () => {
         alignItems="center"
         bg="white"
         zIndex={1000}
-        borderBottom="1px"
         borderColor="gray.200"
       >
         <Box p={4}>
