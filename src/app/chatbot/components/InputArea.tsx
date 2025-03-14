@@ -1,7 +1,7 @@
 // InputArea component handles the message input functionality of the chatbot
 // It provides an auto-resizing textarea with send button and loading state
 import React from 'react';
-import { Flex, InputGroup, InputRightElement, Box, Spinner } from '@chakra-ui/react';
+import { Flex, InputGroup, InputRightElement, Box, Spinner, useColorModeValue } from '@chakra-ui/react';
 import { Icon } from '@iconify/react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { InputAreaProps } from '@/types/chat';
@@ -27,6 +27,12 @@ const InputArea: React.FC<InputAreaProps> = ({
     }
   };
 
+  // Colors for the input area
+  const inputBg = useColorModeValue('white', 'gray.800');
+  const inputBorder = useColorModeValue('gray.300', 'gray.600');
+  const inputHoverBorder = useColorModeValue('brand.500', 'brand.400');
+  const iconColor = useColorModeValue('brand.500', 'brand.400');
+
   return (
     // Container for the input area with responsive width
     <Flex mt={5} align="center" width={['100%', '100%', '70em']}>
@@ -42,20 +48,30 @@ const InputArea: React.FC<InputAreaProps> = ({
           style={{
             flex: 1,
             marginRight: '1rem',
-            padding: '0.5rem 1rem',
-            borderRadius: '0.375rem',
+            padding: '0.75rem 1rem',
+            borderRadius: '0.5rem',
             resize: 'none',
             border: '1px solid',
-            borderColor: 'inherit',
+            borderColor: inputBorder,
+            backgroundColor: inputBg,
             fontSize: '1rem',
             lineHeight: '1.5',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = inputHoverBorder;
+            e.target.style.boxShadow = '0 0 0 1px ' + inputHoverBorder;
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = inputBorder;
+            e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
           }}
         />
         {/* Right element containing either loading spinner or send button */}
         <InputRightElement alignItems="center" width="70px" height="100%">
           {isSending ? (
             // Show loading spinner while message is being sent
-            <Spinner size="md" mr={['6', '8', '10']} />
+            <Spinner size="md" mr={['6', '8', '10']} color="brand.500" />
           ) : (
             // Send button that's disabled when input is empty
             <Box
@@ -69,7 +85,7 @@ const InputArea: React.FC<InputAreaProps> = ({
               justifyContent="center"
               mr={[6, 7, 8]}
             >
-              <Icon icon="iconoir:send" width="2em" height="2em" style={{ color: '#f89454' }} />
+              <Icon icon="iconoir:send" width="2em" height="2em" style={{ color: iconColor }} />
             </Box>
           )}
         </InputRightElement>

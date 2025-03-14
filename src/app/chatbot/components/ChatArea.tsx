@@ -17,7 +17,8 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  useDisclosure
+  useDisclosure,
+  useColorModeValue
 } from '@chakra-ui/react';
 import ReactMarkdown from 'react-markdown';
 import BotIcon from '../../../../public/bot-icon.png';
@@ -48,6 +49,13 @@ const ChatArea: React.FC<ChatAreaProps> = ({
 
   // Track initial load state to prevent unwanted modal displays
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
+  // Colors for message bubbles
+  const userMsgBg = useColorModeValue('brand.100', 'brand.800');
+  const botMsgBg = useColorModeValue('gray.100', 'gray.700');
+  const userMsgColor = useColorModeValue('gray.800', 'white');
+  const botMsgColor = useColorModeValue('gray.800', 'white');
+  const linkColor = useColorModeValue('brand.600', 'brand.300');
 
   // Auto-scroll to the bottom when new messages arrive or when there's a pending message
   useEffect(() => {
@@ -98,7 +106,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
         <VStack align="start" spacing={1}>
           {/* Remove duplicate URLs and render unique source links */}
           {Array.from(new Set(sources?.map(source => source?.url) ?? [])).map((url, index) => (
-            <Link key={index} href={url} isExternal color="blue.500" fontSize="sm">
+            <Link key={index} href={url} isExternal color={linkColor} fontSize="sm">
               {url}
             </Link>
           ))}
@@ -116,9 +124,12 @@ const ChatArea: React.FC<ChatAreaProps> = ({
           <Box
             key={message.id}
             alignSelf={message.role === 'human' ? 'flex-end' : 'flex-start'}
-            bg={message.role === 'human' ? 'blue.100' : 'gray.100'}
-            p={3}
-            borderRadius="md"
+            bg={message.role === 'human' ? userMsgBg : botMsgBg}
+            color={message.role === 'human' ? userMsgColor : botMsgColor}
+            p={4}
+            borderRadius="lg"
+            maxWidth={["90%", "75%", "70%"]}
+            boxShadow="sm"
           >
             <ReactMarkdown>{message.content}</ReactMarkdown>
             {message.sources && renderSources(message.sources)}
@@ -126,7 +137,15 @@ const ChatArea: React.FC<ChatAreaProps> = ({
         ))}
         {/* Show pending message if one exists */}
         {pendingMessage && (
-          <Box alignSelf="flex-end" bg="blue.100" p={3} borderRadius="md">
+          <Box 
+            alignSelf="flex-end" 
+            bg={userMsgBg} 
+            color={userMsgColor}
+            p={4} 
+            borderRadius="lg"
+            maxWidth={["90%", "75%", "70%"]}
+            boxShadow="sm"
+          >
             <ReactMarkdown>{pendingMessage}</ReactMarkdown>
           </Box>
         )}
@@ -136,18 +155,30 @@ const ChatArea: React.FC<ChatAreaProps> = ({
     );
   };
 
+  // Background color for the chat area
+  const chatBg = useColorModeValue('gray.50', 'gray.900');
+
   return (
-    <Flex flex={1} direction="column" p={[4, 6, 8]} alignItems="center">
+    <Flex flex={1} direction="column" p={[4, 6, 8]} alignItems="center" bg={chatBg}>
       {/* Show chat messages if they exist, otherwise show welcome screen */}
       {currentChat.messages.length > 0 ? (
-        <VStack spacing={4} align="stretch" width="full" flex={1} overflowY="auto">
+        <VStack spacing={6} align="stretch" width="full" flex={1} overflowY="auto" px={[2, 4, 6]}>
           {renderMessages()}
         </VStack>
       ) : (
         // Welcome screen with bot icon and suggested questions
         <VStack spacing={8} align="center" flex={1} justify="center">
-          <Image src={BotIcon.src} alt="Bot" boxSize={['60px', '80px', '100px']} />
-          <Text fontSize="2xl" fontWeight="bold">
+          <Box 
+            p={6} 
+            borderRadius="full" 
+            bg="brand.50" 
+            display="flex" 
+            alignItems="center" 
+            justifyContent="center"
+          >
+            <Image src={BotIcon.src} alt="Bot" boxSize={['60px', '80px', '100px']} />
+          </Box>
+          <Text fontSize="2xl" fontWeight="bold" color="gray.800">
             How can I help you today?
           </Text>
           <SuggestedQuestions setInputMessage={setInputMessage} />
@@ -165,15 +196,15 @@ const ChatArea: React.FC<ChatAreaProps> = ({
       {/* Modal for message limit notification */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Message Limit Reached</ModalHeader>
-          <ModalBody>
+        <ModalContent borderRadius="md">
+          <ModalHeader borderBottomWidth="1px" borderColor="gray.200">Message Limit Reached</ModalHeader>
+          <ModalBody py={4}>
             <Text>
               You've reached the limit of 5 messages. To continue using the chatbot, please log in or create an account.
             </Text>
           </ModalBody>
           <ModalFooter gap={3}>
-            <Button colorScheme="blue" onClick={handleLogin}>
+            <Button onClick={handleLogin}>
               Login Now
             </Button>
             <Button variant="ghost" onClick={onClose}>

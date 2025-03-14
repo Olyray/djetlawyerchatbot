@@ -19,6 +19,7 @@ import {
   DrawerContent,
   DrawerCloseButton,
   Button,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { Icon } from '@iconify/react';
 import Logo from '../../../public/dJetLawyer_logo.png';
@@ -97,6 +98,10 @@ const ChatbotPage = () => {
     router.push('/login');
   };
 
+  // Background colors
+  const headerBg = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+
   return (
     <Flex direction="column" height="100vh">
       {/* Header section with logo and navigation */}
@@ -108,16 +113,18 @@ const ChatbotPage = () => {
         p={4}
         justifyContent="space-between"
         alignItems="center"
-        bg="white"
+        bg={headerBg}
         zIndex={1000}
-        borderColor="gray.200"
+        borderBottom="1px"
+        borderColor={borderColor}
+        boxShadow="sm"
       >
         <Box p={4}>
           <Image src={Logo.src} alt="dJetLawyer Logo" height={["40px", "60px"]} />
         </Box>
         {/* Show login button for non-authenticated users */}
         {!token && (
-          <Button onClick={handleLoginClick} colorScheme="blue" mr={4}>
+          <Button onClick={handleLoginClick} mr={4}>
             Login
           </Button>
         )}
@@ -127,6 +134,8 @@ const ChatbotPage = () => {
           icon={<Icon icon="heroicons-outline:menu" />}
           display={["flex", "flex", "none"]}
           onClick={onOpen}
+          variant="ghost"
+          colorScheme="brand"
         />
       </Flex>
 
@@ -148,7 +157,7 @@ const ChatbotPage = () => {
           <DrawerOverlay />
           <DrawerContent>
             <DrawerCloseButton />
-            <DrawerHeader>Menu</DrawerHeader>
+            <DrawerHeader borderBottomWidth="1px" borderColor={borderColor}>Menu</DrawerHeader>
             <DrawerBody>
               <Sidebar
                 handleNewChat={handleNewChat}

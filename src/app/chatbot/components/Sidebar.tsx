@@ -3,8 +3,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
-import { VStack, Flex, Text, Button, Image, Box } from '@chakra-ui/react';
-import NewChatIcon from '../../../../public/new-chat-icon.png';
+import { VStack, Flex, Text, Button, Image, Box, useColorModeValue, Divider } from '@chakra-ui/react';
+import { Icon } from '@iconify/react';
 
 // Interface defining the props required by the Sidebar component
 interface SidebarProps {
@@ -19,6 +19,11 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, handleLogout, display, onClose }) => {
   // Get chat history from Redux store
   const { chats } = useSelector((state: RootState) => state.chat);
+  
+  // Background and hover colors
+  const hoverBg = useColorModeValue('gray.100', 'gray.700');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const activeBg = useColorModeValue('brand.50', 'brand.900');
 
   return (
     // Main sidebar container with responsive styling
@@ -26,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, hand
       width="300px"
       p={4}
       borderRight="1px"
-      borderColor="gray.200"
+      borderColor={borderColor}
       position="sticky"
       top={0}
       height="90vh"
@@ -38,17 +43,25 @@ const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, hand
         <Flex
           align="center"
           cursor="pointer"
-          p={2}
+          p={3}
           borderRadius="md"
-          _hover={{ bg: 'gray.200' }}
+          _hover={{ bg: hoverBg }}
           justifyContent="space-between"
           onClick={handleNewChat}
+          bg="brand.500"
+          color="white"
+          fontWeight="medium"
         >
           <Text fontWeight="bold">New Chat</Text>
-          <Image src={NewChatIcon.src} alt="New Chat" boxSize="20px" ml={38} />
+          <Icon icon="heroicons-outline:plus" width="20px" height="20px" />
         </Flex>
 
+        <Divider />
+
         {/* Chat history list with scrolling */}
+        <Text fontSize="sm" fontWeight="medium" color="gray.500" px={2}>
+          RECENT CHATS
+        </Text>
         <VStack align="stretch" spacing={2} flex={1} overflowY="auto">
           {/* Display chats in reverse chronological order */}
           {[...chats].reverse().map((chat, index) => (
@@ -56,9 +69,9 @@ const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, hand
               key={index}
               align="center"
               cursor="pointer"
-              p={2}
+              p={3}
               borderRadius="md"
-              _hover={{ bg: 'gray.200' }}
+              _hover={{ bg: hoverBg }}
               justifyContent="space-between"
               onClick={() => {
                 handleChatSelect(chat.id);  // Select the chat
@@ -66,16 +79,20 @@ const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, hand
               }}
             >
               {/* Chat title with single line truncation */}
-              <Text fontSize="sm" noOfLines={1}>
-                {chat.title}
-              </Text>
-              <Image src={NewChatIcon.src} alt="New Chat" boxSize="20px" ml={38} />
+              <Flex align="center">
+                <Icon icon="heroicons-outline:chat-alt-2" width="18px" height="18px" style={{ marginRight: '8px' }} />
+                <Text fontSize="sm" noOfLines={1}>
+                  {chat.title}
+                </Text>
+              </Flex>
             </Flex>
           ))}
         </VStack>
 
+        <Divider />
+
         {/* Logout button fixed at bottom */}
-        <Button onClick={handleLogout} marginTop="auto">
+        <Button onClick={handleLogout} marginTop="auto" variant="outline">
           Logout
         </Button>
       </VStack>

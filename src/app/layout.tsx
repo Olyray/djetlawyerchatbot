@@ -9,6 +9,7 @@ import { store } from '../redux/store';
 import AuthPersistenceWrapper from '../components/AuthPersistenceWrapper';
 import Script from 'next/script';
 import { useEffect } from 'react';
+import theme from '../theme';
 
 // RootLayout component serves as the application shell, wrapping all pages with necessary providers
 // It sets up the basic HTML structure and includes essential third-party scripts
@@ -26,8 +27,8 @@ export default function RootLayout({
       <body>
         {/* Redux Provider wraps the entire app to enable global state management */}
         <Provider store={store}>
-          {/* ChakraProvider supplies the app with Chakra UI's theme and component styles */}
-          <ChakraProvider>
+          {/* ChakraProvider supplies the app with our custom theme and component styles */}
+          <ChakraProvider theme={theme}>
             {/* AuthPersistenceWrapper manages user authentication state across page refreshes */}
             <AuthPersistenceWrapper>
               {children}
