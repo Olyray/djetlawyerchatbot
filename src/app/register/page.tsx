@@ -33,30 +33,32 @@ import { User } from '../../types/auth';
 import axios from 'axios';
 import { API_BASE_URL } from '@/utils/config';
 
-
+// Registration page component that handles user account creation
+// Provides both email/password registration and Google Sign-In options
 const RegisterPage = () => {
-  //  state for form inputs
+  // State management for form inputs
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Redux hooks
+  // Redux hooks for state management and dispatch
   const dispatch = useDispatch<AppDispatch>();
   const { isLoading, error } = useSelector((state: RootState) => state.auth);
 
-  // toast for displaying messages
+  // Hooks for toast notifications and navigation
   const toast = useToast();
   const router = useRouter();
 
-  // Responsive values
+  // Responsive design values using Chakra UI's useBreakpointValue
   const boxWidth = useBreakpointValue({ base: "90%", sm: "80%", md: "70%", lg: "xl" });
   const boxHeight = useBreakpointValue({ base: "auto", md: "45em" });
   const inputWidth = useBreakpointValue({ base: "100%", sm: "90%", md: "80%" });
   const fontSize = useBreakpointValue({ base: "xl", md: "2xl" });
   const buttonHeight = useBreakpointValue({ base: "50px", md: "60px" });
 
-
+  // Handle traditional email/password registration
   const handleRegister = async () => {
+    // Validate password confirmation
     if (password !== confirmPassword) {
       toast({
         title: "Passwords do not match",
@@ -67,17 +69,22 @@ const RegisterPage = () => {
       return;
     }
 
+    // Create user data object for registration
     const userData: User = { email, password };
     try {
+      // Attempt to register user with provided credentials
       await dispatch(registerUser(userData)).unwrap();
+      
+      // Show success notification
       toast({
         title: "Registration successful",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-      router.push('/chatbot');
+      router.push('/chatbot');  // Redirect to chatbot page
     } catch (err) {
+      // Show error notification
       toast({
         title: "Registration failed",
         description: error || "An error occurred",
@@ -88,32 +95,39 @@ const RegisterPage = () => {
     }
   };
 
+  // Initialize Google Sign-In functionality
   const handleGoogleSignIn = () => {
     window.google.accounts.id.initialize({
       client_id: '999929627560-bia2rjj7a5m8mn418ieu6gtkmvfonhn8.apps.googleusercontent.com',
       callback: handleGoogleSignInCallback
     });
-    window.google.accounts.id.prompt();
+    window.google.accounts.id.prompt();  // Show Google Sign-In popup
   };
   
+  // Handle Google Sign-In callback after successful authentication
   const handleGoogleSignInCallback = async (response: any) => {
     const idToken = response.credential;
     try {
-      // Send the idToken to your backend for verification
+      // Verify Google token with backend and get user credentials
       const result = await axios.post(`${API_BASE_URL}/api/v1/auth/google-login`, { token: idToken });
+      
+      // Store user credentials in Redux state
       dispatch(setCredentials({
         user: result.data.user,
         token: result.data.access_token,
         refreshToken: result.data.refresh_token
       }));
+      
+      // Show success notification
       toast({
         title: "Google Sign-In successful",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-      router.push('/chatbot');
+      router.push('/chatbot');  // Redirect to chatbot page
     } catch (error) {
+      // Show error notification
       toast({
         title: "Google Sign-In failed",
         description: "An error occurred",
@@ -125,20 +139,24 @@ const RegisterPage = () => {
   };
 
   return (
+    // Provide icon context for consistent icon styling
     <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
       <Flex direction="column" minHeight="100vh">
         {/* Navigation component */}  
         <Navigation />
         <Flex flex={1} width="full" align="center" justifyContent="center">
           <Box width={boxWidth} p={4}>
+            {/* Registration form card */}
             <Box borderWidth={1} borderRadius={"40px"} borderColor="orange.500" p={8} boxShadow="lg" bg="#f8f7f7" height={boxHeight} >
               <VStack spacing={4} align="stretch">
+                {/* User avatar */}
                 <Flex justifyContent="center" mb={0}>
                   <Image src={MaleUser.src} alt="Male User"  boxSize={{ base: "60px", md: "80px" }} />
                 </Flex>
                 <Text fontSize={fontSize} textAlign="center" mb={4}>
                   Create an Account
                 </Text>
+                {/* Email input field */}
                 <Center>
                   <FormControl width={inputWidth} >
                     <InputGroup>
@@ -155,6 +173,7 @@ const RegisterPage = () => {
                     </InputGroup>
                   </FormControl>
                 </Center>
+                {/* Password input field */}
                 <Center>
                   <FormControl width={inputWidth}>
                     <InputGroup>
@@ -172,6 +191,7 @@ const RegisterPage = () => {
                     </InputGroup>
                   </FormControl>
                 </Center>
+                {/* Confirm password input field */}
                 <Center>
                   <FormControl width={inputWidth}>
                     <InputGroup>
@@ -189,6 +209,7 @@ const RegisterPage = () => {
                     </InputGroup>
                   </FormControl>
                 </Center>
+                {/* Sign Up button */}
                 <Center>
                   <Button
                     colorScheme="orange"
@@ -202,12 +223,14 @@ const RegisterPage = () => {
                     Sign Up
                   </Button>
                 </Center>
+                {/* Login link for existing users */}
                 <Text fontSize="sm" textAlign={"center"}>
                   Have an account?{' '}
                   <Link color="orange.500" href="/login">
                     Log In
                   </Link>
                 </Text>
+                {/* Divider with "or" text */}
                 <Flex align="center" my={4}>
                   <Divider flex={1} />
                   <Text mx={4} color="gray.500">
@@ -215,6 +238,7 @@ const RegisterPage = () => {
                   </Text>
                   <Divider flex={1} />
                 </Flex>
+                {/* Google Sign-In button */}
                 <Center>
                   <Button
                     leftIcon={<FcGoogle />}

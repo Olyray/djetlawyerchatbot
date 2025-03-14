@@ -1,30 +1,37 @@
+// InputArea component handles the message input functionality of the chatbot
+// It provides an auto-resizing textarea with send button and loading state
 import React from 'react';
 import { Flex, InputGroup, InputRightElement, Box, Spinner } from '@chakra-ui/react';
 import { Icon } from '@iconify/react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { InputAreaProps } from '@/types/chat';
 
+// Main InputArea component that manages user message input and submission
 const InputArea: React.FC<InputAreaProps> = ({
-  inputMessage,
-  setInputMessage,
-  handleSendMessage,
-  isSending,
-  isMobile,
+  inputMessage,        // Current message text
+  setInputMessage,     // Function to update message text
+  handleSendMessage,   // Function to handle message submission
+  isSending,          // Loading state while message is being sent
+  isMobile,           // Flag to handle mobile-specific behavior
 }) => {
+  // Handle keyboard events for message submission
+  // Enter key sends message on desktop, but not on mobile (to allow multiline input)
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
       if (isMobile) {
-        return;
+        return;  // Allow Enter key for new lines on mobile
       } else if (!e.shiftKey) {
-        e.preventDefault();
-        handleSendMessage();
+        e.preventDefault();  // Prevent new line on desktop
+        handleSendMessage();  // Send message when Enter is pressed without Shift
       }
     }
   };
 
   return (
+    // Container for the input area with responsive width
     <Flex mt={5} align="center" width={['100%', '100%', '70em']}>
       <InputGroup>
+        {/* Auto-resizing textarea for message input */}
         <TextareaAutosize
           minRows={1}
           maxRows={5}
@@ -44,10 +51,13 @@ const InputArea: React.FC<InputAreaProps> = ({
             lineHeight: '1.5',
           }}
         />
+        {/* Right element containing either loading spinner or send button */}
         <InputRightElement alignItems="center" width="70px" height="100%">
           {isSending ? (
+            // Show loading spinner while message is being sent
             <Spinner size="md" mr={['6', '8', '10']} />
           ) : (
+            // Send button that's disabled when input is empty
             <Box
               as="button"
               onClick={handleSendMessage}
