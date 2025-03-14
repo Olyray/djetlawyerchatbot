@@ -200,7 +200,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
           <ModalHeader borderBottomWidth="1px" borderColor="gray.200">Message Limit Reached</ModalHeader>
           <ModalBody py={4}>
             <Text>
-              You've reached the limit of 5 messages. To continue using the chatbot, please log in or create an account.
+              You have reached the limit of 5 messages. To continue using the chatbot, please log in or create an account.
             </Text>
           </ModalBody>
           <ModalFooter gap={3}>
