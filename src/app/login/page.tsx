@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux/store';
 import { loginUser, setCredentials } from '../../redux/slices/authSlice';
+import { resetAnonymousState } from '../../redux/slices/anonymousSlice';
+import { clearCurrentChat } from '../../redux/slices/chatSlice';
 import { 
   Box, 
   Button, 
@@ -48,6 +50,10 @@ const LoginPage = () => {
     };
     try {
       await dispatch(loginUser(loginData)).unwrap();
+      
+      // Reset anonymous state after successful login but preserve current chat
+      dispatch(resetAnonymousState());
+      
       toast({
         title: "Login successful",
         status: "success",
@@ -85,6 +91,10 @@ const LoginPage = () => {
         token: result.data.access_token,
         refreshToken: result.data.refresh_token
       }));
+      
+      // Reset anonymous state after successful login but preserve current chat
+      dispatch(resetAnonymousState());
+      
       toast({
         title: "Google Sign-In successful",
         status: "success",

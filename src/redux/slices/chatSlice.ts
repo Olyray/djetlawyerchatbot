@@ -4,6 +4,7 @@ import { API_BASE_URL } from '../../utils/config';
 import { refreshToken } from '../../utils/tokenManager';
 import { clearCredentials } from './authSlice';
 import { AppDispatch } from '../store';
+import { incrementMessageCount } from './anonymousSlice';
 
 export const fetchChats = createAsyncThunk(
   'chat/fetchChats',
@@ -40,20 +41,50 @@ export const fetchChats = createAsyncThunk(
 export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
   async ({ message, chatId }: { message: string; chatId?: string }, { getState, dispatch }) => {
-    const { auth } = getState() as { auth: { token: string } };
+    const { auth, anonymous } = getState() as { 
+      auth: { token: string | null }, 
+      anonymous: { sessionId: string, isLimitReached: boolean } 
+    };
+
+    if (!auth.token && anonymous.isLimitReached) {
+      return { chat_id: "limit_reached", answer: "", sources: [], limit_reached: true };
+    }
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (auth.token) {
+      headers['Authorization'] = `Bearer ${auth.token}`;
+      headers['X-Anonymous-Session-Id'] = anonymous.sessionId;
+    } else {
+      headers['X-Anonymous-Session-Id'] = anonymous.sessionId;
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/v1/chatbot/chat`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${auth.token}`,
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ message, chat_id: chatId }),
     });
+
     if (!response.ok) {
-      throw new Error('Failed to send message');
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to send message');
     }
+
     const data = await response.json() as ChatResponse;
-    if (!chatId) {
+    
+    // Check if the limit was reached
+    if (data.limit_reached) {
+      dispatch(incrementMessageCount()); // This will set isLimitReached to true
+      return data;
+    }
+
+    if (!auth.token) {
+      dispatch(incrementMessageCount());
+    }
+
+    if (!chatId && data.chat_id !== "limit_reached") {
       dispatch(setCurrentChat(data.chat_id));
     }
     
@@ -118,6 +149,9 @@ const chatSlice = createSlice({
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.loading = false;
+        if (action.payload.limit_reached) {
+          return;
+        }
         if (!state.currentChat.id) {
           state.currentChat.id = action.payload.chat_id;
         }

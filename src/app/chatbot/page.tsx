@@ -18,6 +18,7 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
+  Button,
 } from '@chakra-ui/react';
 import { Icon } from '@iconify/react';
 import Logo from '../../../public/dJetLawyer_logo.png';
@@ -29,6 +30,7 @@ const ChatbotPage = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { token, isLoading } = useSelector((state: RootState) => state.auth);
+  const { isLimitReached } = useSelector((state: RootState) => state.anonymous);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isMobile, setIsMobile] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -42,6 +44,7 @@ const ChatbotPage = () => {
     handleLogout,
     isSending,
     pendingMessage,
+    setShowLimitModal,
   } = useChatbot();
 
   useEffect(() => {
@@ -50,9 +53,7 @@ const ChatbotPage = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (!isLoading && !token) {
-        router.push('/login');
-      } else if (token) {
+      if (!isLoading && token) {
         try {
           await dispatch(fetchChats()).unwrap();
         } catch (error) {
@@ -75,6 +76,10 @@ const ChatbotPage = () => {
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
 
+  const handleLoginClick = () => {
+    router.push('/login');
+  };
+
   return (
     <Flex direction="column" height="100vh">
       <Flex
@@ -92,6 +97,11 @@ const ChatbotPage = () => {
         <Box p={4}>
           <Image src={Logo.src} alt="dJetLawyer Logo" height={["40px", "60px"]} />
         </Box>
+        {!token && (
+          <Button onClick={handleLoginClick} colorScheme="blue" mr={4}>
+            Login
+          </Button>
+        )}
         <IconButton
           aria-label="Open menu"
           icon={<Icon icon="heroicons-outline:menu" />}
@@ -101,13 +111,15 @@ const ChatbotPage = () => {
       </Flex>
 
       <Flex pt="100px" flex={1} width="full">
-        <Sidebar
-          display={["none", "none", "block"]}
-          handleNewChat={handleNewChat}
-          handleChatSelect={handleChatSelect}
-          handleLogout={handleLogout}
-          onClose={onClose}
-        />
+        {token && (
+          <Sidebar
+            display={["none", "none", "block"]}
+            handleNewChat={handleNewChat}
+            handleChatSelect={handleChatSelect}
+            handleLogout={handleLogout}
+            onClose={onClose}
+          />
+        )}
 
         <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
           <DrawerOverlay />
@@ -132,6 +144,7 @@ const ChatbotPage = () => {
           isSending={isSending}
           pendingMessage={pendingMessage}
           isMobile={isMobile}
+          setShowLimitModal={setShowLimitModal}
         />
       </Flex>
     </Flex>

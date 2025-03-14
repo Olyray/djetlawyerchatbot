@@ -4,6 +4,7 @@ import axios from 'axios';
 import { HYDRATE } from 'next-redux-wrapper';
 import { setAuthToken } from '../../utils/tokenManager';
 import { API_BASE_URL } from '../../utils/config';
+import { resetAnonymousState } from './anonymousSlice';
 
 type LoginFormData = {
   username: string;
@@ -133,4 +134,10 @@ const authSlice = createSlice({
 });
 
 export const { setCredentials, clearCredentials, hydrateAuth } = authSlice.actions;
+
+// Add this action to reset anonymous state after login
+export const loginAndResetAnonymous = () => (dispatch: any) => {
+  dispatch(resetAnonymousState());
+};
+
 export default authSlice.reducer;

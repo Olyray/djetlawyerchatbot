@@ -18,6 +18,7 @@ export interface ChatResponse {
   chat_id: string;
   answer: string;
   sources: Source[];
+  limit_reached?: boolean;
 }
 
 export interface Source {
@@ -42,6 +43,7 @@ export interface ChatAreaProps {
   isSending: boolean;
   pendingMessage: string | null;
   isMobile: boolean;
+  setShowLimitModal?: (fn: () => void) => void;
 }
 
 export interface InputAreaProps {
