@@ -533,7 +533,7 @@ export default function SharedChatPage() {
               <Text>
                 <strong>You're viewing a shared conversation.</strong>{' '}
                 {hasAnonymousChat ? 
-                  "You've continued this chat. Login to save it to your account." : 
+                  "You have continued this chat. Login to save it to your account." : 
                   "Continue this chat and it will be available to save when you login."}
               </Text>
             </Flex>
