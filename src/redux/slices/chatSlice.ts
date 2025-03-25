@@ -1,6 +1,6 @@
 // Redux slice for managing chat-related state and operations
 // Handles chat history, message sending, and chat selection
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Chat, Message, ChatResponse, ChatState } from '../../types/chat';
 import { API_BASE_URL } from '../../utils/config';
 import { refreshToken } from '../../utils/tokenManager';
@@ -147,6 +147,12 @@ const chatSlice = createSlice({
       state.currentChat.id = null;
       state.currentChat.messages = [];
     },
+    // Initialize a shared chat with all messages at once
+    initializeSharedChat: (state, action) => {
+      const { chatId, messages } = action.payload;
+      state.currentChat.id = chatId;
+      state.currentChat.messages = messages;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -206,5 +212,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { setCurrentChat, clearCurrentChat } = chatSlice.actions;
+export const { setCurrentChat, clearCurrentChat, initializeSharedChat } = chatSlice.actions;
 export default chatSlice.reducer;

@@ -44,6 +44,7 @@ export interface ChatAreaProps {
   pendingMessage: string | null;
   isMobile: boolean;
   setShowLimitModal?: (fn: () => void) => void;
+  hideShareButton?: boolean;
 }
 
 export interface InputAreaProps {
