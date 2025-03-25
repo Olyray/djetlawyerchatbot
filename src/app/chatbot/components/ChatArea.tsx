@@ -302,7 +302,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
           <ModalHeader borderBottomWidth="1px" borderColor="gray.200">Message Limit Reached</ModalHeader>
           <ModalBody py={4}>
             <Text>
-              You've reached the limit of messages for anonymous users. 
+              You have reached the limit of messages for anonymous users. 
               Please login or register to continue chatting with unlimited messages.
             </Text>
           </ModalBody>
