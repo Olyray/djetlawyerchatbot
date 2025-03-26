@@ -47,7 +47,10 @@ const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, hand
           borderRadius="md"
           _hover={{ bg: hoverBg }}
           justifyContent="space-between"
-          onClick={handleNewChat}
+          onClick={() => {
+            handleNewChat();
+            onClose?.();
+          }}
           bg="brand.500"
           color="white"
           fontWeight="medium"
