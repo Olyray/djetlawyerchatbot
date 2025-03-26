@@ -38,7 +38,7 @@ How to use:
 1. Clone the repository
 2. Install dependencies: `npm install`
 3. Set up environment variables:
-   - Create a `.env` file with `NEXT_PUBLIC_API_URL` pointing to your backend
+   - Create a `.env` file with `NEXT_PUBLIC_BACKEND_URL` pointing to your backend
 4. Start the development server: `npm run dev`
 
 ### Building for Production

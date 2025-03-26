@@ -139,7 +139,7 @@ export default function SharedChatPage() {
       }));
       
       // Use the API directly for first message to include previous messages
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
@@ -247,7 +247,7 @@ export default function SharedChatPage() {
       }
 
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
         const response = await axios.get(`${apiUrl}/api/v1/chat/shared/${chatId}`);
         
         console.log('Fetched shared chat data:', response.data);

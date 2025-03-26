@@ -121,7 +121,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   const handleShareChat = async () => {
     setIsSharing(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
       
       if (token && currentChat.id) {
         // For authenticated users, share the chat from the database
