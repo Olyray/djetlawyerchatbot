@@ -49,7 +49,7 @@ export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
   async ({ message, chatId }: { message: string; chatId?: string }, { getState, dispatch }) => {
     const { auth, anonymous } = getState() as { 
-      auth: { token: string | null }, 
+      auth: { token: string | null; refreshToken: string | null }, 
       anonymous: { sessionId: string, isLimitReached: boolean } 
     };
 
@@ -71,11 +71,30 @@ export const sendMessage = createAsyncThunk(
     }
 
     // Send message to the API
-    const response = await fetch(`${API_BASE_URL}/api/v1/chatbot/chat`, {
+    let response = await fetch(`${API_BASE_URL}/api/v1/chatbot/chat`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ message, chat_id: chatId }),
     });
+
+    // Handle token expiration by attempting to refresh
+    if (auth.token && auth.refreshToken && response.status === 401) {
+      try {
+        await refreshToken(auth.refreshToken, dispatch as AppDispatch);
+        const newState = getState() as { auth: { token: string } };
+        headers['Authorization'] = `Bearer ${newState.auth.token}`;
+        
+        // Retry the request with the new token
+        response = await fetch(`${API_BASE_URL}/api/v1/chatbot/chat`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ message, chat_id: chatId }),
+        });
+      } catch (refreshError) {
+        dispatch(clearCredentials());
+        throw new Error('Authentication failed');
+      }
+    }
 
     if (!response.ok) {
       const error = await response.json();
@@ -107,13 +126,30 @@ export const sendMessage = createAsyncThunk(
 // Async thunk to fetch message history for a specific chat
 export const fetchChatHistory = createAsyncThunk(
   'chat/fetchChatHistory',
-  async (chatId: string, { getState }) => {
-    const { auth } = getState() as { auth: { token: string } };
-    const response = await fetch(`${API_BASE_URL}/api/v1/chat/chats/${chatId}/messages`, {
+  async (chatId: string, { getState, dispatch }) => {
+    const { auth } = getState() as { auth: { token: string; refreshToken: string } };
+    let response = await fetch(`${API_BASE_URL}/api/v1/chat/chats/${chatId}/messages`, {
       headers: {
         'Authorization': `Bearer ${auth.token}`,
       },
     });
+
+    // Handle token expiration by attempting to refresh
+    if (response.status === 401 && auth.refreshToken) {
+      try {
+        await refreshToken(auth.refreshToken, dispatch as AppDispatch);
+        const newState = getState() as { auth: { token: string } };
+        response = await fetch(`${API_BASE_URL}/api/v1/chat/chats/${chatId}/messages`, {
+          headers: {
+            'Authorization': `Bearer ${newState.auth.token}`
+          }
+        });
+      } catch (refreshError) {
+        dispatch(clearCredentials());
+        throw new Error('Authentication failed');
+      }
+    }
+
     if (!response.ok) {
       throw new Error('Failed to fetch chat history');
     }
