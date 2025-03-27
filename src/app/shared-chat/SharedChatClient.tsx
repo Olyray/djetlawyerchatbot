@@ -249,8 +249,6 @@ export function SharedChatClient() {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
         const response = await axios.get(`${apiUrl}/api/v1/chat/shared/${chatId}`);
-        
-        console.log('Fetched shared chat data:', response.data);
         setChat(response.data);
       } catch (err) {
         console.error('Error fetching shared chat:', err);
@@ -315,14 +313,12 @@ export function SharedChatClient() {
     // This effect should run when the token changes (user logs in)
     // and when we have loaded the chat but don't have messages in Redux
     if (token && chat && currentChat.messages.length === 0) {
-      console.log('User is logged in, checking for stored shared chat data...');
       
       // Try to get stored messages from session storage
       const storedMessages = sessionStorage.getItem(SHARED_MESSAGES_STORAGE_KEY);
       if (storedMessages) {
         try {
           const parsedMessages = JSON.parse(storedMessages);
-          console.log(`Restoring ${parsedMessages.length} messages from session storage`);
           
           dispatch(initializeSharedChat({
             chatId: currentChat.id || chat.id,
@@ -343,15 +339,11 @@ export function SharedChatClient() {
     // Store the current messages in session storage before redirecting
     if (currentChat.messages.length > 0) {
       try {
-        console.log(`Storing ${currentChat.messages.length} messages in session storage before login`);
-        
         // Store the entire messages array
         sessionStorage.setItem(
           SHARED_MESSAGES_STORAGE_KEY, 
           JSON.stringify(currentChat.messages)
         );
-
-        console.log(`Critical after login change is being implemented`);
         dispatch(initializeSharedChat({
           chatId: anonymousChatId,
           messages: currentChat.messages

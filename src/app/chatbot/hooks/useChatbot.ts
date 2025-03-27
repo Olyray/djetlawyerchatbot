@@ -90,8 +90,6 @@ export const useChatbot = () => {
         .catch((error) => {
           // Handle errors with existing chat ID
           if (currentChat.id && error.message) {
-            console.log("Error with existing chat, creating new chat:", error.message);
-            
             // Try creating a new chat if current chat has issues
             dispatch(clearCurrentChat());
             

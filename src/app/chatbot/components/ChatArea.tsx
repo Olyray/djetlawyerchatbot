@@ -79,7 +79,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   // Auto-scroll to the bottom when new messages arrive or when there's a pending message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    console.log(`The current chat is ${currentChat.messages.length} long`);
   }, [currentChat.messages, pendingMessage]);
 
 

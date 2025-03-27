@@ -14,7 +14,7 @@ export async function generateMetadata(
   
   // You can fetch the actual chat title from your API if needed
   // Example:
-  const chatData = await fetch(`${API_BASE_URL}/api/v1/chatbot/shared-chat/${chatId}`).then(res => res.json());
+  const chatData = await fetch(`${API_BASE_URL}/api/v1/chat/shared/${chatId}`).then(res => res.json());
   const chatTitle = chatData.title;
   
   return {
