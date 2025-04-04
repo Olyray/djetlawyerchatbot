@@ -1,10 +1,20 @@
 // InputArea component handles the message input functionality of the chatbot
 // It provides an auto-resizing textarea with send button and loading state
 import React from 'react';
-import { Flex, InputGroup, InputRightElement, Box, Spinner, useColorModeValue } from '@chakra-ui/react';
+import { 
+  Flex, 
+  InputGroup, 
+  InputRightElement, 
+  InputLeftElement,
+  Box, 
+  Spinner, 
+  useColorModeValue
+} from '@chakra-ui/react';
 import { Icon } from '@iconify/react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { InputAreaProps } from '@/types/chat';
+import AttachmentButton from '../../../components/AttachmentButton';
+import AttachmentPreview from '../../../components/AttachmentPreview';
 
 // Main InputArea component that manages user message input and submission
 const InputArea: React.FC<InputAreaProps> = ({
@@ -13,6 +23,9 @@ const InputArea: React.FC<InputAreaProps> = ({
   handleSendMessage,   // Function to handle message submission
   isSending,          // Loading state while message is being sent
   isMobile,           // Flag to handle mobile-specific behavior
+  attachments = [],   // Attachments to be sent with the message
+  onAddAttachment,    // Function to add an attachment
+  onRemoveAttachment, // Function to remove an attachment
 }) => {
   // Handle keyboard events for message submission
   // Enter key sends message on desktop, but not on mobile (to allow multiline input)
@@ -33,10 +46,43 @@ const InputArea: React.FC<InputAreaProps> = ({
   const inputHoverBorder = useColorModeValue('brand.500', 'brand.400');
   const iconColor = useColorModeValue('brand.500', 'brand.400');
 
+  // Render attachments previews
+  const renderAttachmentPreviews = () => {
+    if (!attachments || attachments.length === 0) return null;
+    
+    return attachments.map(attachment => (
+      <AttachmentPreview
+        key={attachment.id}
+        attachmentId={attachment.id}
+        fileName={attachment.file_name}
+        fileType={attachment.file_type}
+        onRemove={() => onRemoveAttachment && onRemoveAttachment(attachment.id)}
+      />
+    ));
+  };
+
   return (
-    // Container for the input area with responsive width
-    <Flex mt={5} align="center" width={['100%', '100%', '70em']}>
+    <Flex direction="column" mt={5} width={['100%', '100%', '70em']}>
+      {/* Attachment previews */}
+      {attachments && attachments.length > 0 && (
+        <Box mb={2}>
+          {renderAttachmentPreviews()}
+        </Box>
+      )}
+      
       <InputGroup>
+        {/* Attachment button */}
+        {onAddAttachment && (
+          <InputLeftElement height="100%" width="40px">
+            <AttachmentButton
+              onFileAttached={(id, fileName, fileType) => 
+                onAddAttachment(id, fileName, fileType)
+              }
+              disabled={isSending}
+            />
+          </InputLeftElement>
+        )}
+        
         {/* Auto-resizing textarea for message input */}
         <TextareaAutosize
           minRows={1}
@@ -49,6 +95,7 @@ const InputArea: React.FC<InputAreaProps> = ({
             flex: 1,
             marginRight: '1rem',
             padding: '0.75rem 1rem',
+            paddingLeft: onAddAttachment ? '2.5rem' : '1rem',
             borderRadius: '0.5rem',
             resize: 'none',
             border: '1px solid',
@@ -73,13 +120,13 @@ const InputArea: React.FC<InputAreaProps> = ({
             // Show loading spinner while message is being sent
             <Spinner size="md" mr={['6', '8', '10']} color="brand.500" />
           ) : (
-            // Send button that's disabled when input is empty
+            // Send button that's disabled when input is empty and there are no attachments
             <Box
               as="button"
               onClick={handleSendMessage}
-              disabled={!inputMessage.trim()}
-              opacity={inputMessage.trim() ? 1 : 0.5}
-              cursor={inputMessage.trim() ? 'pointer' : 'default'}
+              disabled={!inputMessage.trim() && (!attachments || attachments.length === 0)}
+              opacity={inputMessage.trim() || (attachments && attachments.length > 0) ? 1 : 0.5}
+              cursor={(inputMessage.trim() || (attachments && attachments.length > 0)) ? 'pointer' : 'default'}
               display="flex"
               alignItems="center"
               justifyContent="center"

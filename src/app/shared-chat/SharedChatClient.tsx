@@ -33,6 +33,7 @@ import ChatArea from '../chatbot/components/ChatArea';
 import { useChatbot } from '../chatbot/hooks/useChatbot';
 import { Icon } from '@iconify/react';
 import Logo from '../../../public/dJetLawyer_logo.png';
+import { API_BASE_URL } from '@/utils/config';
 
 // Define types for messages and the shared chat
 interface Source {
@@ -139,7 +140,7 @@ export function SharedChatClient() {
       }));
       
       // Use the API directly for first message to include previous messages
-      const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      const apiUrl = API_BASE_URL;
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
@@ -247,7 +248,7 @@ export function SharedChatClient() {
       }
 
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+        const apiUrl = API_BASE_URL;
         const response = await axios.get(`${apiUrl}/api/v1/chat/shared/${chatId}`);
         setChat(response.data);
       } catch (err) {

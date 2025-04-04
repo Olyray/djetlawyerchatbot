@@ -8,6 +8,7 @@ import { useAuthPersistence } from '../../../hooks/useAuthPersistence';
 import { sendMessage, fetchChatHistory, setCurrentChat, clearCurrentChat } from '../../../redux/slices/chatSlice';
 import { checkMessageCountReset } from '../../../redux/slices/anonymousSlice';
 import { useToast } from '@chakra-ui/react';
+import { Attachment } from '../../../types/chat';
 
 export const useChatbot = () => {
   // Initialize hooks and get state from Redux store
@@ -32,6 +33,8 @@ export const useChatbot = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+  // Add attachments state
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
 
   // Check if anonymous user's message limit should be reset (e.g., new day)
   useEffect(() => {
@@ -41,17 +44,35 @@ export const useChatbot = () => {
   // Start a new chat by clearing the current chat state
   const handleNewChat = () => {
     dispatch(clearCurrentChat());
+    // Clear attachments when starting a new chat
+    setAttachments([]);
   };
 
   // Load an existing chat's history when selected
   const handleChatSelect = (chatId: string) => {
     dispatch(setCurrentChat(chatId));
     dispatch(fetchChatHistory(chatId));
+    // Clear attachments when selecting a different chat
+    setAttachments([]);
+  };
+
+  // Add attachment to the current message
+  const handleAddAttachment = (id: string, fileName: string, fileType: string) => {
+    setAttachments(prev => [
+      ...prev, 
+      { id, file_name: fileName, file_type: fileType }
+    ]);
+  };
+
+  // Remove attachment from the current message
+  const handleRemoveAttachment = (id: string) => {
+    setAttachments(prev => prev.filter(attachment => attachment.id !== id));
   };
 
   // Handle sending a new message to the chatbot
   const handleSendMessage = () => {
-    if (inputMessage.trim()) {
+    // Allow sending if there's text or attachments
+    if (inputMessage.trim() || attachments.length > 0) {
       // Check for message limit for anonymous users
       if (!token && isLimitReached) {
         showLimitModalRef.current();
@@ -70,16 +91,18 @@ export const useChatbot = () => {
         sessionStorage.removeItem('wasAnonymous');
       }
       
-      // Send message with current chat ID if available
+      // Send message with current chat ID if available and include attachments
       dispatch(sendMessage({ 
         message: inputMessage, 
-        chatId: currentChat.id || undefined
+        chatId: currentChat.id || undefined,
+        attachments: attachments.length > 0 ? attachments : undefined
       }))
         .unwrap()
         .then((response) => {
-          // Clear input and pending message on success
+          // Clear input, pending message, and attachments on success
           setInputMessage('');
           setPendingMessage(null);
+          setAttachments([]);
           
           // If chat ID changed (e.g., anonymous chat transferred to authenticated),
           // fetch the complete chat history
@@ -94,11 +117,15 @@ export const useChatbot = () => {
             dispatch(clearCurrentChat());
             
             // Retry sending message without a chat ID
-            dispatch(sendMessage({ message: inputMessage }))
+            dispatch(sendMessage({ 
+              message: inputMessage,
+              attachments: attachments.length > 0 ? attachments : undefined
+            }))
               .unwrap()
               .then(() => {
                 setInputMessage('');
                 setPendingMessage(null);
+                setAttachments([]);
               })
               .catch((retryError) => {
                 // Show error toast if retry fails
@@ -147,5 +174,9 @@ export const useChatbot = () => {
     isSending,
     pendingMessage,
     setShowLimitModal,
+    // Add attachment-related state and handlers
+    attachments,
+    handleAddAttachment,
+    handleRemoveAttachment,
   };
 };

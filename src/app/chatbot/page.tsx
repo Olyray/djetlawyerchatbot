@@ -56,6 +56,9 @@ const ChatbotPage = () => {
     isSending,
     pendingMessage,
     setShowLimitModal,
+    attachments,
+    handleAddAttachment,
+    handleRemoveAttachment,
   } = useChatbot();
 
   // Mark component as hydrated after initial render
@@ -178,6 +181,9 @@ const ChatbotPage = () => {
           pendingMessage={pendingMessage}
           isMobile={isMobile}
           setShowLimitModal={setShowLimitModal}
+          attachments={attachments}
+          onAddAttachment={handleAddAttachment}
+          onRemoveAttachment={handleRemoveAttachment}
         />
       </Flex>
     </Flex>

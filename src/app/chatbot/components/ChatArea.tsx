@@ -33,6 +33,15 @@ import { ChatAreaProps, Message, Source } from '@/types/chat';
 import { useRouter } from 'next/navigation';
 import { FaShare } from 'react-icons/fa';
 import axios from 'axios';
+import { Icon } from '@iconify/react';
+import { API_BASE_URL } from '@/utils/config';
+
+// Add type for attachment
+interface MessageAttachment {
+  id: string;
+  file_name: string;
+  file_type: string;
+}
 
 // Main ChatArea component that manages the chat interface and message display
 const ChatArea: React.FC<ChatAreaProps> = ({
@@ -43,7 +52,10 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   pendingMessage,
   isMobile,
   setShowLimitModal,
-  hideShareButton = false
+  hideShareButton = false,
+  attachments = [],
+  onAddAttachment,
+  onRemoveAttachment
 }): JSX.Element => {
   // Get necessary state from Redux store
   const { currentChat } = useSelector((state: RootState) => state.chat);
@@ -120,7 +132,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   const handleShareChat = async () => {
     setIsSharing(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      const apiUrl = API_BASE_URL;
       
       if (token && currentChat.id) {
         // For authenticated users, share the chat from the database
@@ -213,6 +225,18 @@ const ChatArea: React.FC<ChatAreaProps> = ({
             boxShadow="sm"
           >
             <ReactMarkdown>{message.content}</ReactMarkdown>
+            
+            {/* Render attachments if present */}
+            {message.attachments && message.attachments.length > 0 && (
+              <Box mt={3}>
+                {message.attachments.map((attachment) => (
+                  <Box key={attachment.id}>
+                    {renderAttachment(attachment)}
+                  </Box>
+                ))}
+              </Box>
+            )}
+            
             {message.sources && renderSources(message.sources)}
           </Box>
         ))}
@@ -228,6 +252,17 @@ const ChatArea: React.FC<ChatAreaProps> = ({
             boxShadow="sm"
           >
             <ReactMarkdown>{pendingMessage}</ReactMarkdown>
+            
+            {/* Show pending attachments */}
+            {attachments && attachments.length > 0 && pendingMessage && (
+              <Box mt={3}>
+                {attachments.map((attachment) => (
+                  <Box key={attachment.id}>
+                    {renderAttachment(attachment)}
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Box>
         )}
         {/* Invisible div for scroll reference */}
@@ -238,6 +273,44 @@ const ChatArea: React.FC<ChatAreaProps> = ({
 
   // Background color for the chat area
   const chatBg = useColorModeValue('gray.50', 'gray.900');
+
+  // In the renderAttachment function, specify the type
+  const renderAttachment = (attachment: MessageAttachment) => {
+    const isImage = attachment.file_type.startsWith('image/');
+    const fileUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/attachments/file/${attachment.id}`;
+    
+    if (isImage) {
+      return (
+        <Box mt={2} maxW="300px">
+          <Image
+            src={fileUrl}
+            alt={attachment.file_name}
+            borderRadius="md"
+            onClick={() => window.open(fileUrl, '_blank')}
+            cursor="pointer"
+          />
+        </Box>
+      );
+    } else {
+      return (
+        <Box mt={2}>
+          <Link href={fileUrl} isExternal color={linkColor}>
+            <Flex
+              alignItems="center"
+              p={2}
+              bg={useColorModeValue('gray.100', 'gray.700')}
+              borderRadius="md"
+              _hover={{ bg: useColorModeValue('gray.200', 'gray.600') }}
+            >
+              <Icon icon="ph:file-doc" width="24px" height="24px" style={{ marginRight: '0.5rem' }} />
+              <Text fontSize="sm">{attachment.file_name}</Text>
+              <Icon icon="ph:download" width="16px" height="16px" style={{ marginLeft: 'auto' }} />
+            </Flex>
+          </Link>
+        </Box>
+      );
+    }
+  };
 
   return (
     <Flex flex={1} direction="column" p={[4, 6, 8]} alignItems="center" bg={chatBg}>
@@ -292,6 +365,9 @@ const ChatArea: React.FC<ChatAreaProps> = ({
         handleSendMessage={handleSendMessage}
         isSending={isSending}
         isMobile={isMobile}
+        attachments={attachments}
+        onAddAttachment={onAddAttachment}
+        onRemoveAttachment={onRemoveAttachment}
       />
 
       {/* Modal for message limit notification */}
