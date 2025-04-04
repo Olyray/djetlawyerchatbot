@@ -87,6 +87,10 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   const userMsgColor = useColorModeValue('gray.800', 'white');
   const botMsgColor = useColorModeValue('gray.800', 'white');
   const linkColor = useColorModeValue('brand.600', 'brand.300');
+  
+  // Additional colors for attachments - moved from renderAttachment
+  const attachmentBg = useColorModeValue('gray.100', 'gray.700');
+  const attachmentHoverBg = useColorModeValue('gray.200', 'gray.600');
 
   // Auto-scroll to the bottom when new messages arrive or when there's a pending message
   useEffect(() => {
@@ -298,9 +302,9 @@ const ChatArea: React.FC<ChatAreaProps> = ({
             <Flex
               alignItems="center"
               p={2}
-              bg={useColorModeValue('gray.100', 'gray.700')}
+              bg={attachmentBg}
               borderRadius="md"
-              _hover={{ bg: useColorModeValue('gray.200', 'gray.600') }}
+              _hover={{ bg: attachmentHoverBg }}
             >
               <Icon icon="ph:file-doc" width="24px" height="24px" style={{ marginRight: '0.5rem' }} />
               <Text fontSize="sm">{attachment.file_name}</Text>
