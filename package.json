@@ -21,7 +21,7 @@
     "@emotion/styled": "^11.13.0",
     "@iconify/react": "^5.0.2",
     "@next/env": "^14.2.7",
-    "@reduxjs/toolkit": "^2.2.7",
+    "@reduxjs/toolkit": "^2.6.1",
     "@types/uuid": "^10.0.0",
     "axios": "^1.7.2",
     "dotenv": "^16.4.5",
