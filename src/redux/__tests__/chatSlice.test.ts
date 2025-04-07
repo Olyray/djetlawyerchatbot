@@ -157,7 +157,6 @@ describe('Chat Slice', () => {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer test-token',
-          'X-Anonymous-Session-Id': 'anon-session-id',
         },
         body: JSON.stringify({ message: 'Can you help me?', chat_id: 'existing-chat-id' }),
       });
@@ -195,9 +194,9 @@ describe('Chat Slice', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Anonymous-Session-Id': 'anon-session-id',
+          'x-anonymous-session-id': 'anon-session-id',
         },
-        body: JSON.stringify({ message: 'Can you help me?', chat_id: undefined }),
+        body: JSON.stringify({ message: 'Can you help me?', chat_id: null }),
       });
 
       // Check currentChat.id was set to the new chat ID
