@@ -80,7 +80,7 @@ const ChatbotPage = () => {
     };
   
     checkAuth();
-  }, [isHydrated, isLoading, token]);
+  }, [dispatch, router,isHydrated, isLoading, token]);
 
   // Effect to handle responsive design
   useEffect(() => {
