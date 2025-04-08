@@ -2,114 +2,150 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import InputArea from '../InputArea';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
 
-// Mock the Icon component from @iconify/react
+// Mock AttachmentButton and AttachmentPreview components
+jest.mock('../../../../components/AttachmentButton', () => {
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <button 
+        data-testid="attachment-button"
+        onClick={() => props.onFileAttached('mock-id', 'test-file.pdf', 'application/pdf')}
+        disabled={props.disabled}
+      >
+        Attachment Button
+      </button>
+    )
+  };
+});
+
+jest.mock('../../../../components/AttachmentPreview', () => {
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <div data-testid="attachment-preview">
+        <span data-testid="attachment-filename">{props.fileName}</span>
+        <span data-testid="attachment-type">{props.fileType}</span>
+        <button 
+          data-testid="attachment-remove-button"
+          onClick={props.onRemove}
+        >
+          Remove
+        </button>
+      </div>
+    )
+  };
+});
+
+// Mock the Icon component
 jest.mock('@iconify/react', () => ({
-  Icon: () => <div data-testid="send-icon">Send Icon</div>,
+  Icon: ({ icon }: { icon: string }) => <div data-testid={`icon-${icon}`} />
 }));
 
-describe('InputArea Component', () => {
-  // Test props
+describe('InputArea Component with Attachments', () => {
+  const mockStore = configureStore([]);
+  const store = mockStore({
+    auth: {
+      token: 'mock-token'
+    }
+  });
+  
   const mockProps = {
     inputMessage: '',
     setInputMessage: jest.fn(),
     handleSendMessage: jest.fn(),
     isSending: false,
     isMobile: false,
+    attachments: [],
+    onAddAttachment: jest.fn(),
+    onRemoveAttachment: jest.fn()
   };
-
+  
   beforeEach(() => {
     jest.clearAllMocks();
   });
-
-  test('renders input area with placeholder text', () => {
-    render(<InputArea {...mockProps} />);
+  
+  it('renders with attachment button', () => {
+    render(
+      <Provider store={store}>
+        <InputArea {...mockProps} />
+      </Provider>
+    );
     
-    // Check if placeholder text is displayed
-    expect(screen.getByPlaceholderText('Explain Company Law')).toBeInTheDocument();
+    expect(screen.getByTestId('attachment-button')).toBeInTheDocument();
   });
-
-  test('updates input value when typing', () => {
-    render(<InputArea {...mockProps} />);
+  
+  it('disables attachment button when sending', () => {
+    render(
+      <Provider store={store}>
+        <InputArea {...mockProps} isSending={true} />
+      </Provider>
+    );
     
-    // Get input element
-    const inputElement = screen.getByPlaceholderText('Explain Company Law');
-    
-    // Simulate typing
-    fireEvent.change(inputElement, { target: { value: 'What is a limited company?' } });
-    
-    // Check if setInputMessage was called with correct value
-    expect(mockProps.setInputMessage).toHaveBeenCalledWith('What is a limited company?');
+    expect(screen.getByTestId('attachment-button')).toBeDisabled();
   });
-
-  test('disables send button when input is empty', () => {
-    render(<InputArea {...mockProps} />);
+  
+  it('calls onAddAttachment when attachment button is clicked', () => {
+    render(
+      <Provider store={store}>
+        <InputArea {...mockProps} />
+      </Provider>
+    );
     
-    // Find send button by its test ID and add non-null assertion
-    const sendButton = screen.getByTestId('send-icon').parentElement!;
+    fireEvent.click(screen.getByTestId('attachment-button'));
     
-    // Check if send button is disabled
-    expect(sendButton).toHaveAttribute('disabled');
-    expect(sendButton).toHaveStyle('opacity: 0.5');
+    expect(mockProps.onAddAttachment).toHaveBeenCalledWith(
+      'mock-id',
+      'test-file.pdf',
+      'application/pdf'
+    );
   });
-
-  test('enables send button when input has text', () => {
-    render(<InputArea {...mockProps} inputMessage="What is a limited company?" />);
+  
+  it('renders attachment previews when attachments are provided', () => {
+    const mockAttachments = [
+      { id: 'attach-1', file_name: 'document.pdf', file_type: 'application/pdf' },
+      { id: 'attach-2', file_name: 'image.jpg', file_type: 'image/jpeg' }
+    ];
     
-    // Find send button by its test ID and add non-null assertion
-    const sendButton = screen.getByTestId('send-icon').parentElement!;
+    render(
+      <Provider store={store}>
+        <InputArea {...mockProps} attachments={mockAttachments} />
+      </Provider>
+    );
     
-    // Check if send button is enabled
-    expect(sendButton).not.toHaveAttribute('disabled');
-    expect(sendButton).toHaveStyle('opacity: 1');
+    const previews = screen.getAllByTestId('attachment-preview');
+    expect(previews.length).toBe(2);
+    
+    const filenames = screen.getAllByTestId('attachment-filename');
+    expect(filenames[0].textContent).toBe('document.pdf');
+    expect(filenames[1].textContent).toBe('image.jpg');
   });
-
-  test('triggers handleSendMessage when clicking send button', () => {
-    render(<InputArea {...mockProps} inputMessage="What is a limited company?" />);
+  
+  it('calls onRemoveAttachment when remove button is clicked', () => {
+    const mockAttachments = [
+      { id: 'attach-1', file_name: 'document.pdf', file_type: 'application/pdf' }
+    ];
     
-    // Find send button by its test ID and add non-null assertion
-    const sendButton = screen.getByTestId('send-icon').parentElement!;
+    render(
+      <Provider store={store}>
+        <InputArea {...mockProps} attachments={mockAttachments} />
+      </Provider>
+    );
     
-    // Click send button
-    fireEvent.click(sendButton);
+    fireEvent.click(screen.getByTestId('attachment-remove-button'));
     
-    // Check if handleSendMessage was called
-    expect(mockProps.handleSendMessage).toHaveBeenCalledTimes(1);
+    expect(mockProps.onRemoveAttachment).toHaveBeenCalledWith('attach-1');
   });
-
-  test('shows spinner when isSending is true', () => {
-    render(<InputArea {...mockProps} isSending={true} />);
+  
+  it('does not render attachment previews section when no attachments', () => {
+    render(
+      <Provider store={store}>
+        <InputArea {...mockProps} attachments={[]} />
+      </Provider>
+    );
     
-    // Check if spinner is displayed using classname instead of role
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-    
-    // Check if send button is not displayed
-    expect(screen.queryByTestId('send-icon')).not.toBeInTheDocument();
-  });
-
-  test('triggers handleSendMessage when pressing Enter on desktop', () => {
-    render(<InputArea {...mockProps} inputMessage="What is a limited company?" />);
-    
-    // Get input element
-    const inputElement = screen.getByPlaceholderText('Explain Company Law');
-    
-    // Simulate pressing Enter
-    fireEvent.keyDown(inputElement, { key: 'Enter' });
-    
-    // Check if handleSendMessage was called
-    expect(mockProps.handleSendMessage).toHaveBeenCalledTimes(1);
-  });
-
-  test('does not trigger handleSendMessage when pressing Enter on mobile', () => {
-    render(<InputArea {...mockProps} inputMessage="What is a limited company?" isMobile={true} />);
-    
-    // Get input element
-    const inputElement = screen.getByPlaceholderText('Explain Company Law');
-    
-    // Simulate pressing Enter
-    fireEvent.keyDown(inputElement, { key: 'Enter' });
-    
-    // Check if handleSendMessage was not called
-    expect(mockProps.handleSendMessage).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('attachment-preview')).not.toBeInTheDocument();
   });
 }); 

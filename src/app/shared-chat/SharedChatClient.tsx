@@ -333,7 +333,7 @@ export function SharedChatClient() {
         }
       }
     }
-  }, [token, chat, currentChat.messages.length, dispatch]);
+  }, [token, chat, currentChat.messages.length, currentChat.id,  dispatch]);
 
   // Navigate to login page - trigger transfer after login
   const handleLogin = () => {
