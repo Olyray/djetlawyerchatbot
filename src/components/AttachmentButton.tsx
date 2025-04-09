@@ -75,14 +75,6 @@ const AttachmentButton: React.FC<AttachmentButtonProps> = ({
         response.data.file_name,
         response.data.file_type
       );
-      
-      toast({
-        title: 'File attached',
-        description: 'Your file has been attached and will be sent with your message.',
-        status: 'success',
-        duration: 3000,
-        isClosable: true
-      });
     } catch (error) {
       console.error('File upload failed:', error);
       toast({
