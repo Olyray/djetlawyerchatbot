@@ -102,6 +102,9 @@ export function SharedChatClient() {
   const [hasAnonymousChat, setHasAnonymousChat] = useState(false);
   const [anonymousChatId, setAnonymousChatId] = useState<string | null>(null);
 
+  // Add local state for managing isSending state for custom first message implementation
+  const [isCustomSending, setIsCustomSending] = useState(false);
+
   // Colors for UI elements
   const chatBg = useColorModeValue('gray.50', 'gray.900');
   const headerBg = useColorModeValue('white', 'gray.800');
@@ -115,10 +118,13 @@ export function SharedChatClient() {
     handleNewChat,
     handleChatSelect,
     handleLogout,
-    isSending,
+    isSending: originalIsSending,
     pendingMessage,
     setShowLimitModal,
   } = useChatbot();
+
+  // Combine original isSending with our custom state
+  const isSending = originalIsSending || isCustomSending;
 
   // Create a wrapper around handleSendMessage to handle first message in shared chat
   const handleSendMessage = () => {
@@ -152,7 +158,8 @@ export function SharedChatClient() {
         headers['X-Anonymous-Session-Id'] = sessionId;
       }
       
-      // Set UI state for sending
+      // Set UI state for sending - also set isCustomSending to true to show spinner
+      setIsCustomSending(true);
       const pendingMsg = inputMessage;
       setInputMessage('');
       
@@ -217,6 +224,10 @@ export function SharedChatClient() {
         
         // Restore input message on error
         setInputMessage(pendingMsg);
+      })
+      .finally(() => {
+        // Always reset custom sending state regardless of outcome
+        setIsCustomSending(false);
       });
     } else {
       // Use the original handleSendMessage for subsequent messages
