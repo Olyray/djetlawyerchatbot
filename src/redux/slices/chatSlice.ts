@@ -85,7 +85,9 @@ export const sendMessage = createAsyncThunk(
 
     if (auth.token) {
       headers['Authorization'] = `Bearer ${auth.token}`;
-      headers['X-Anonymous-Session-Id'] = anonymous.sessionId;
+      if (anonymous.sessionId) {
+        headers['X-Anonymous-Session-Id'] = anonymous.sessionId;
+      }
     } else {
       headers['X-Anonymous-Session-Id'] = anonymous.sessionId;
     }

@@ -157,6 +157,7 @@ describe('Chat Slice', () => {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer test-token',
+          'X-Anonymous-Session-Id': 'anon-session-id',
         },
         body: JSON.stringify({ message: 'Can you help me?', chat_id: 'existing-chat-id' }),
       });
@@ -194,7 +195,7 @@ describe('Chat Slice', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-anonymous-session-id': 'anon-session-id',
+          'X-Anonymous-Session-Id': 'anon-session-id',
         },
         body: JSON.stringify({ message: 'Can you help me?', chat_id: null }),
       });
