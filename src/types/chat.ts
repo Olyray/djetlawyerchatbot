@@ -20,6 +20,7 @@ export interface Message {
   created_at: string;
   sources?: Source[];
   attachments?: Attachment[];
+  audio_file?: File;
 }
 
 export interface ChatResponse {
@@ -56,6 +57,7 @@ export interface ChatAreaProps {
   attachments?: Attachment[];
   onAddAttachment?: (id: string, fileName: string, fileType: string) => void;
   onRemoveAttachment?: (id: string) => void;
+  onAddAudioMessage?: (audioFile: File) => void;
 }
 
 export interface InputAreaProps {
@@ -67,6 +69,7 @@ export interface InputAreaProps {
   attachments?: Attachment[];
   onAddAttachment?: (id: string, fileName: string, fileType: string) => void;
   onRemoveAttachment?: (id: string) => void;
+  onAddAudioMessage?: (audioFile: File) => void;
 }
 
 export interface SuggestedQuestionsProps {

@@ -55,7 +55,8 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   hideShareButton = false,
   attachments = [],
   onAddAttachment,
-  onRemoveAttachment
+  onRemoveAttachment,
+  onAddAudioMessage
 }): JSX.Element => {
   // Get necessary state from Redux store
   const { currentChat } = useSelector((state: RootState) => state.chat);
@@ -372,6 +373,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
         attachments={attachments}
         onAddAttachment={onAddAttachment}
         onRemoveAttachment={onRemoveAttachment}
+        onAddAudioMessage={onAddAudioMessage}
       />
 
       {/* Modal for message limit notification */}

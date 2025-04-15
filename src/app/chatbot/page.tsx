@@ -59,6 +59,7 @@ const ChatbotPage = () => {
     attachments,
     handleAddAttachment,
     handleRemoveAttachment,
+    handleAddAudioMessage,
   } = useChatbot();
 
   // Mark component as hydrated after initial render
@@ -184,6 +185,7 @@ const ChatbotPage = () => {
           attachments={attachments}
           onAddAttachment={handleAddAttachment}
           onRemoveAttachment={handleRemoveAttachment}
+          onAddAudioMessage={handleAddAudioMessage}
         />
       </Flex>
     </Flex>
