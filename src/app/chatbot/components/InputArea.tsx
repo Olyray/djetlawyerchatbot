@@ -76,13 +76,13 @@ const InputArea: React.FC<InputAreaProps> = ({
   const handleAudioRecorded = (audioBlob: Blob) => {
     // Get the correct file extension based on MIME type
     const mimeType = audioBlob.type;
-    let fileExt = 'ogg';
+    let fileExt = 'webm';
     
     // Map MIME type to file extension
     if (mimeType === 'audio/wav') fileExt = 'wav';
-    else if (mimeType === 'audio/mp3') fileExt = 'mp3';
+    else if (mimeType === 'audio/ogg') fileExt = 'ogg';
     else if (mimeType === 'audio/aiff') fileExt = 'aiff';
-    else if (mimeType === 'audio/aac') fileExt = 'aac';
+    else if (mimeType === 'audio/mp3') fileExt = 'mp3';
     else if (mimeType === 'audio/flac') fileExt = 'flac';
     
     // Create a File object from the Blob using the detected MIME type

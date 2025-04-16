@@ -38,6 +38,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextClosedRef = useRef<boolean>(false);
   
   // Colors for UI elements
   const recordingColor = useColorModeValue('red.500', 'red.300');
@@ -51,6 +52,19 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
     startRecording();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  
+  // Helper function to safely close AudioContext to prevent double closure
+  const safelyCloseAudioContext = () => {
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed' && !audioContextClosedRef.current) {
+      audioContextClosedRef.current = true;
+      try {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      } catch (error) {
+        console.error('Error closing AudioContext:', error);
+      }
+    }
+  };
   
   // Start recording function
   const startRecording = async () => {
@@ -71,10 +85,10 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
       visualizeAudio();
       
       // Check for supported MIME types (prefer OGG for Gemini API compatibility)
-      let mimeType = 'audio/ogg';
+      let mimeType = 'audio/webm';
       if (!MediaRecorder.isTypeSupported(mimeType)) {
         // Fallbacks in order of preference for Gemini compatibility
-        const fallbacks = ['audio/wav', 'audio/mp3', 'audio/aiff', 'audio/aac', 'audio/flac'];
+        const fallbacks = ['audio/wav', 'audio/ogg', 'audio/aiff', 'audio/mp3', 'audio/flac'];
         for (const fallback of fallbacks) {
           if (MediaRecorder.isTypeSupported(fallback)) {
             mimeType = fallback;
@@ -108,11 +122,8 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         // Stop all tracks in the stream
         stream.getTracks().forEach(track => track.stop());
         
-        // Clear visualization interval
-        if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-          audioContextRef.current.close();
-          audioContextRef.current = null;
-        }
+        // Safely close AudioContext to prevent double closure
+        safelyCloseAudioContext();
       };
       
       // Start recording
@@ -235,16 +246,19 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   useEffect(() => {
     return () => {
       if (mediaRecorderRef.current && isRecording) {
-        mediaRecorderRef.current.stop();
+        try {
+          mediaRecorderRef.current.stop();
+        } catch (error) {
+          console.error('Error stopping MediaRecorder:', error);
+        }
       }
       
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
       
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close();
-      }
+      // Safely close AudioContext to prevent double closure
+      safelyCloseAudioContext();
       
       if (audioUrl) {
         URL.revokeObjectURL(audioUrl);
