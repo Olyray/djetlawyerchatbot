@@ -205,7 +205,7 @@ const InputArea: React.FC<InputAreaProps> = ({
               <Box
                 as="button"
                 onClick={() => handleSendMessage()}
-                disabled={!inputMessage.trim() || (!attachments || attachments.length === 0)}
+                disabled={!inputMessage.trim() && (!attachments || attachments.length === 0)}
                 opacity={inputMessage.trim() || (attachments && attachments.length > 0) ? 1 : 0.5}
                 cursor={(inputMessage.trim() || (attachments && attachments.length > 0)) ? 'pointer' : 'default'}
                 display="flex"
