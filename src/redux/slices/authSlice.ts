@@ -1,7 +1,7 @@
 // Redux slice for managing authentication state and operations
 // Handles user registration, login, and token management
 import { createSlice, createAsyncThunk, PayloadAction, AnyAction } from '@reduxjs/toolkit';
-import { AuthState, User, RegisterResponse, LoginResponse, } from '../../types/auth';
+import { AuthState, User, RegisterResponse, LoginResponse, SubscriptionDetails } from '../../types/auth';
 import axios from 'axios';
 import { HYDRATE } from 'next-redux-wrapper';
 import { setAuthToken } from '../../utils/tokenManager';
@@ -21,6 +21,8 @@ const initialState: AuthState = {
   refreshToken: null,   // JWT refresh token
   isLoading: false,     // Loading state for auth operations
   error: null,          // Error state for failed operations
+  isPremium: false,     // Premium subscription status
+  subscriptionDetails: null, // Subscription details
 };
 
 // Async thunk for user registration
@@ -67,13 +69,44 @@ export const loginUser = createAsyncThunk<LoginResponse, LoginFormData>(
   }
 );
 
+// Async thunk for fetching user subscription details
+export const fetchSubscriptionDetails = createAsyncThunk(
+  'auth/fetchSubscription',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState() as { auth: AuthState };
+      if (!auth.token) {
+        return rejectWithValue('No authentication token found');
+      }
+
+      const response = await axios.get(`${API_BASE_URL}/api/v1/subscriptions/current`, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      });
+      
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data || 'Failed to fetch subscription details');
+      }
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+);
+
 // Create the auth slice with reducers for managing authentication state
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
     // Set user credentials and persist to localStorage
-    setCredentials: (state, action: PayloadAction<{ user: User | null; token: string | null; refreshToken: string | null }>) => {
+    setCredentials: (state, action: PayloadAction<{ 
+      user: User | null; 
+      token: string | null; 
+      refreshToken: string | null;
+      subscriptionDetails?: SubscriptionDetails | null;
+    }>) => {
       // Store credentials in localStorage for persistence
       localStorage.setItem('user', JSON.stringify(action.payload.user));
       localStorage.setItem('token', action.payload.token || '');
@@ -83,6 +116,12 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.refreshToken = action.payload.refreshToken;
+      
+      // Update subscription details if provided but don't store in localStorage
+      if (action.payload.subscriptionDetails) {
+        state.subscriptionDetails = action.payload.subscriptionDetails;
+        state.isPremium = action.payload.subscriptionDetails.planType === 'premium';
+      }
       
       // Set the auth token for API requests
       setAuthToken(action.payload.token); 
@@ -94,6 +133,8 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.refreshToken = null;
+      state.isPremium = false;
+      state.subscriptionDetails = null;
       
       // Remove stored credentials
       localStorage.removeItem('user');
@@ -116,7 +157,17 @@ const authSlice = createSlice({
         state.token = storedToken;
         state.refreshToken = storedRefreshToken;
         setAuthToken(storedToken);
+        
+        // Reset subscription state - will be fetched from server
+        state.isPremium = false;
+        state.subscriptionDetails = null;
       }
+    },
+    
+    // Update subscription details (in-memory only, not persisted to localStorage)
+    updateSubscription: (state, action: PayloadAction<SubscriptionDetails>) => {
+      state.subscriptionDetails = action.payload;
+      state.isPremium = action.payload.planType === 'premium';
     },
   },
   extraReducers: (builder) => {
@@ -146,15 +197,46 @@ const authSlice = createSlice({
         state.refreshToken = action.payload.refresh_token;
         state.user = { email: action.meta.arg.username, password: '' };
         
+        // Update subscription details if included in login response
+        if (action.payload.subscription) {
+          state.subscriptionDetails = action.payload.subscription;
+          state.isPremium = action.payload.subscription.planType === 'premium';
+        }
+        
         // Set and persist credentials using the setCredentials reducer
         authSlice.caseReducers.setCredentials(state, { 
-          payload: { user: state.user, token: action.payload.access_token, refreshToken: action.payload.refresh_token },
+          payload: { 
+            user: state.user, 
+            token: action.payload.access_token, 
+            refreshToken: action.payload.refresh_token,
+            subscriptionDetails: action.payload.subscription
+          },
           type: setCredentials.type
         });
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      // Handle subscription fetch
+      .addCase(fetchSubscriptionDetails.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchSubscriptionDetails.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.subscriptionDetails = action.payload;
+        state.isPremium = action.payload.planType === 'premium';
+      })
+      .addCase(fetchSubscriptionDetails.rejected, (state) => {
+        state.isLoading = false;
+        // Default to free plan if subscription fetch fails
+        state.isPremium = false;
+        state.subscriptionDetails = {
+          planType: 'free',
+          startDate: null,
+          expiryDate: null,
+          autoRenew: false
+        };
       })
       // Handle Next.js server-side state hydration
       .addCase(HYDRATE, (state, action: AnyAction) => {
@@ -166,7 +248,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, clearCredentials, hydrateAuth } = authSlice.actions;
+export const { setCredentials, clearCredentials, hydrateAuth, updateSubscription } = authSlice.actions;
 
 // Action creator to reset anonymous state after successful login
 // This ensures clean transition from anonymous to authenticated user

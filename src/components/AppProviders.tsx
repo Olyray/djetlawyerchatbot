@@ -5,6 +5,7 @@ import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { Provider } from 'react-redux';
 import { store } from '../redux/store';
 import AuthPersistenceWrapper from './AuthPersistenceWrapper';
+import { SubscriptionProvider } from '../contexts/SubscriptionContext';
 import theme from '../theme';
 
 interface AppProvidersProps {
@@ -21,7 +22,10 @@ export function AppProviders({ children }: AppProvidersProps) {
           <ColorModeScript initialColorMode={theme.config.initialColorMode} />
           {/* AuthPersistenceWrapper manages user authentication state across page refreshes */}
           <AuthPersistenceWrapper>
-            {children}
+            {/* SubscriptionProvider manages subscription prompts and premium features */}
+            <SubscriptionProvider>
+              {children}
+            </SubscriptionProvider>
           </AuthPersistenceWrapper>
         </ChakraProvider>
       </Provider>

@@ -22,6 +22,8 @@ import { InputAreaProps } from '@/types/chat';
 import AttachmentButton from '../../../components/AttachmentButton';
 import AttachmentPreview from '../../../components/AttachmentPreview';
 import AudioRecorder from '../../../components/AudioRecorder';
+import { useSubscription } from '../../../hooks/useSubscription';
+import { useSubscriptionPrompt } from '../../../contexts/SubscriptionContext';
 
 // Main InputArea component that manages user message input and submission
 const InputArea: React.FC<InputAreaProps> = ({
@@ -37,6 +39,10 @@ const InputArea: React.FC<InputAreaProps> = ({
 }) => {
   // State to manage audio recording interface visibility
   const [isRecording, setIsRecording] = useState(false);
+  
+  // Use single subscription hook for all premium features
+  const { isPremium, refreshSubscription } = useSubscription();
+  const { showSubscriptionPrompt } = useSubscriptionPrompt();
   
   // Handle keyboard events for message submission
   // Enter key sends message on desktop, but not on mobile (to allow multiline input)
@@ -70,6 +76,18 @@ const InputArea: React.FC<InputAreaProps> = ({
         onRemove={() => onRemoveAttachment && onRemoveAttachment(attachment.id)}
       />
     ));
+  };
+
+  // Handle starting audio recording with premium check
+  const handleStartRecording = async () => {
+    // Check premium status before allowing audio recording
+    await refreshSubscription();
+    
+    if (isPremium) {
+      setIsRecording(true);
+    } else {
+      showSubscriptionPrompt('audio');
+    }
   };
 
   // Handle audio recording completion
@@ -147,14 +165,31 @@ const InputArea: React.FC<InputAreaProps> = ({
           {/* Microphone button */}
           {onAddAudioMessage && (
             <InputLeftElement height="100%" width="40px" left="40px">
-              <Tooltip label="Record audio message">
+              <Tooltip label={isPremium ? "Record audio message" : "Premium: Record audio message"}>
                 <IconButton
                   aria-label="Record audio message"
-                  icon={<Icon icon="ic:baseline-mic" width="1.5em" height="1.5em" style={{ color: iconColor }} />}
+                  icon={
+                    <>
+                      <Icon icon="ic:baseline-mic" width="1.5em" height="1.5em" style={{ color: iconColor }} />
+                      {!isPremium && (
+                        <Icon 
+                          icon="ph:crown" 
+                          width="0.9em" 
+                          height="0.9em" 
+                          style={{ 
+                            color: '#f4965c', 
+                            position: 'absolute', 
+                            bottom: '-2px', 
+                            right: '-2px' 
+                          }} 
+                        />
+                      )}
+                    </>
+                  }
                   variant="ghost"
                   size="sm"
                   isDisabled={isSending}
-                  onClick={() => setIsRecording(true)}
+                  onClick={handleStartRecording}
                 />
               </Tooltip>
             </InputLeftElement>
