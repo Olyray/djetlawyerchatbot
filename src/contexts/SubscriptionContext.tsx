@@ -18,21 +18,27 @@
  * Works in conjunction with PremiumFeatureCheck.tsx to create a complete premium feature system.
  */
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
 import SubscriptionPrompt from '../components/SubscriptionPrompt';
 import { initiateSubscription } from '../services/subscriptionService';
+import { useToast } from '@chakra-ui/react';
+import { useSubscription } from '../hooks/useSubscription';
 
 interface SubscriptionContextProps {
   showSubscriptionPrompt: (featureType?: 'document' | 'image' | 'camera' | 'audio') => void;
   hideSubscriptionPrompt: () => void;
+  isSubscribing: boolean;
+  subscriptionError: string | null;
 }
 
 export const SubscriptionContext = createContext<SubscriptionContextProps>({
   showSubscriptionPrompt: () => {},
   hideSubscriptionPrompt: () => {},
+  isSubscribing: false,
+  subscriptionError: null,
 });
 
 interface SubscriptionProviderProps {
@@ -42,35 +48,66 @@ interface SubscriptionProviderProps {
 export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ children }) => {
   const [isPromptOpen, setIsPromptOpen] = useState(false);
   const [attemptedFeature, setAttemptedFeature] = useState<'document' | 'image' | 'camera' | 'audio' | undefined>(undefined);
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
+  
   const router = useRouter();
+  const toast = useToast();
   const { user } = useSelector((state: RootState) => state.auth);
+  const { refreshSubscription } = useSubscription();
 
-  const showSubscriptionPrompt = (featureType?: 'document' | 'image' | 'camera' | 'audio') => {
+  const showSubscriptionPrompt = useCallback((featureType?: 'document' | 'image' | 'camera' | 'audio') => {
     setAttemptedFeature(featureType);
     setIsPromptOpen(true);
-  };
+    // Reset any previous errors when showing the prompt
+    setSubscriptionError(null);
+  }, []);
 
-  const hideSubscriptionPrompt = () => {
+  const hideSubscriptionPrompt = useCallback(() => {
     setIsPromptOpen(false);
-  };
+  }, []);
 
   const handleSubscribe = async () => {
-    // Close modal first
-    hideSubscriptionPrompt();
+    // Reset any previous errors
+    setSubscriptionError(null);
     
-    // Navigate to pricing/payment page or initiate payment flow
-    if (user?.email) {
-      try {
-        const success = await initiateSubscription(user.email);
-        if (success) {
-          // Payment successful - could show a success notification here
-        }
-      } catch (error) {
-        console.error('Subscription failed:', error);
+    if (!user?.email) {
+      // User not logged in - redirect to login page with return URL
+      hideSubscriptionPrompt();
+      router.push('/login?returnUrl=/pricing');
+      return;
+    }
+    
+    try {
+      setIsSubscribing(true);
+      
+      const success = await initiateSubscription(user.email);
+      
+      if (success) {
+        // Close the modal
+        hideSubscriptionPrompt();
+        
+        // Show success message
+        toast({
+          title: 'Subscription Successful',
+          description: 'You now have access to all premium features!',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+          position: 'top',
+        });
+        
+        // Refresh subscription status to update UI
+        await refreshSubscription();
+      } else {
+        // Payment was not successful or was cancelled
+        setSubscriptionError('Subscription process was not completed. Please try again.');
       }
-    } else {
-      // User not logged in - redirect to pricing page
-      router.push('/pricing');
+    } catch (error) {
+      console.error('Subscription failed:', error);
+      setSubscriptionError('An error occurred during the subscription process. Please try again later.');
+    } finally {
+      setIsSubscribing(false);
     }
   };
 
@@ -79,6 +116,8 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       value={{
         showSubscriptionPrompt,
         hideSubscriptionPrompt,
+        isSubscribing,
+        subscriptionError,
       }}
     >
       {children}
@@ -87,6 +126,8 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
         onClose={hideSubscriptionPrompt}
         attemptedFeature={attemptedFeature}
         onSubscribe={handleSubscribe}
+        isLoading={isSubscribing}
+        error={subscriptionError}
       />
     </SubscriptionContext.Provider>
   );

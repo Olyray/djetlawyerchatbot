@@ -15,6 +15,9 @@ import {
   Heading,
   Divider,
   useColorModeValue,
+  Alert,
+  AlertIcon,
+  Spinner,
 } from '@chakra-ui/react';
 import { Icon } from '@iconify/react';
 
@@ -23,6 +26,8 @@ interface SubscriptionPromptProps {
   onClose: () => void;
   attemptedFeature?: 'document' | 'image' | 'camera' | 'audio';
   onSubscribe: () => void;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
 const FeatureIcon = ({ feature }: { feature: string }) => {
@@ -52,6 +57,8 @@ const SubscriptionPrompt: React.FC<SubscriptionPromptProps> = ({
   onClose,
   attemptedFeature,
   onSubscribe,
+  isLoading = false,
+  error = null,
 }) => {
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
@@ -84,6 +91,13 @@ const SubscriptionPrompt: React.FC<SubscriptionPromptProps> = ({
         
         <ModalBody pt={6} pb={8}>
           <VStack spacing={6} align="stretch">
+            {error && (
+              <Alert status="error" borderRadius="md">
+                <AlertIcon />
+                {error}
+              </Alert>
+            )}
+            
             <Box>
               <Text fontSize="lg" fontWeight="medium">
                 {featureName} uploads are a premium feature
@@ -134,10 +148,16 @@ const SubscriptionPrompt: React.FC<SubscriptionPromptProps> = ({
         </ModalBody>
         
         <ModalFooter bg="gray.50" borderTop="1px solid" borderColor={borderColor}>
-          <Button variant="outline" mr={3} onClick={onClose}>
+          <Button variant="outline" mr={3} onClick={onClose} isDisabled={isLoading}>
             Maybe Later
           </Button>
-          <Button colorScheme="brand" onClick={onSubscribe}>
+          <Button 
+            colorScheme="brand" 
+            onClick={onSubscribe} 
+            isLoading={isLoading} 
+            loadingText="Processing"
+            leftIcon={isLoading ? <Spinner size="sm" /> : undefined}
+          >
             Subscribe Now
           </Button>
         </ModalFooter>
