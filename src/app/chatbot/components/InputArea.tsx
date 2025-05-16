@@ -1,6 +1,6 @@
 // InputArea component handles the message input functionality of the chatbot
 // It provides an auto-resizing textarea with send button and loading state
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Flex, 
   InputGroup, 
@@ -43,6 +43,11 @@ const InputArea: React.FC<InputAreaProps> = ({
   // Use single subscription hook for all premium features
   const { isPremium, refreshSubscription } = useSubscription();
   const { showSubscriptionPrompt } = useSubscriptionPrompt();
+  
+  // Refresh subscription status when component mounts
+  useEffect(() => {
+    refreshSubscription();
+  }, [refreshSubscription]);
   
   // Handle keyboard events for message submission
   // Enter key sends message on desktop, but not on mobile (to allow multiline input)
@@ -171,7 +176,7 @@ const InputArea: React.FC<InputAreaProps> = ({
                   icon={
                     <>
                       <Icon icon="ic:baseline-mic" width="1.5em" height="1.5em" style={{ color: iconColor }} />
-                      {!isPremium && (
+                      {!isPremium && !isRecording && (
                         <Icon 
                           icon="ph:crown" 
                           width="0.9em" 

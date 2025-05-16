@@ -158,9 +158,10 @@ const authSlice = createSlice({
         state.refreshToken = storedRefreshToken;
         setAuthToken(storedToken);
         
-        // Reset subscription state - will be fetched from server
-        state.isPremium = false;
-        state.subscriptionDetails = null;
+        // Don't reset subscription state - keep existing value until refreshed
+        // This prevents false premium prompts during state hydration
+        // state.isPremium = false;
+        // state.subscriptionDetails = null;
       }
     },
     

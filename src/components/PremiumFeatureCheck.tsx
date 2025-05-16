@@ -22,10 +22,12 @@ export const PremiumFeature: React.FC<PremiumFeatureProps> = ({
   featureType,
   onPromptClick,
 }) => {
-  const { isPremium, isLoading } = useSubscription();
+  const { isPremium, isLoading, refreshSubscription } = useSubscription();
   
-  // No longer refreshing subscription status on every component mount
-  // This avoids duplicate API calls as the useSubscription hook handles caching
+  // Refresh subscription status when component mounts
+  useEffect(() => {
+    refreshSubscription();
+  }, [refreshSubscription]);
 
   // Show loading state while verifying
   if (isLoading) {
