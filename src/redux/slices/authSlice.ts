@@ -79,7 +79,7 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         return rejectWithValue('No authentication token found');
       }
 
-      const response = await axios.get(`${API_BASE_URL}/api/v1/subscriptions/current`, {
+      const response = await axios.get(`${API_BASE_URL}/api/v1/subscriptions/status`, {
         headers: {
           Authorization: `Bearer ${auth.token}`
         }

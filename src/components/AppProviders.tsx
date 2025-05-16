@@ -24,7 +24,7 @@ export function AppProviders({ children }: AppProvidersProps) {
           <AuthPersistenceWrapper>
             {/* SubscriptionProvider manages subscription prompts and premium features */}
             <SubscriptionProvider>
-              {children}
+            {children}
             </SubscriptionProvider>
           </AuthPersistenceWrapper>
         </ChakraProvider>

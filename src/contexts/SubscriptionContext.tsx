@@ -23,7 +23,7 @@ import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
 import SubscriptionPrompt from '../components/SubscriptionPrompt';
-import { initiateSubscription } from '../services/subscriptionService';
+import { initiateSubscriptionWithPopup } from '../services/subscriptionService';
 import { useToast } from '@chakra-ui/react';
 import { useSubscription } from '../hooks/useSubscription';
 
@@ -34,7 +34,8 @@ interface SubscriptionContextProps {
   subscriptionError: string | null;
 }
 
-export const SubscriptionContext = createContext<SubscriptionContextProps>({
+// Create the context with a default value
+const SubscriptionContext = createContext<SubscriptionContextProps>({
   showSubscriptionPrompt: () => {},
   hideSubscriptionPrompt: () => {},
   isSubscribing: false,
@@ -81,7 +82,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     try {
       setIsSubscribing(true);
       
-      const success = await initiateSubscription(user.email);
+      const success = await initiateSubscriptionWithPopup(user.email);
       
       if (success) {
         // Close the modal
@@ -133,5 +134,14 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
   );
 };
 
-// Custom hook for using subscription context
-export const useSubscriptionPrompt = () => useContext(SubscriptionContext); 
+/**
+ * Custom hook to access subscription functionality
+ * @returns Subscription context object
+ */
+export const useSubscriptionPrompt = (): SubscriptionContextProps => {
+  const context = useContext(SubscriptionContext);
+  if (!context) {
+    throw new Error('useSubscriptionPrompt must be used within a SubscriptionProvider');
+  }
+  return context;
+}; 

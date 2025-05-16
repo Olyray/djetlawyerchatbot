@@ -12,17 +12,18 @@ interface PaystackPopupResponse {
 }
 
 interface PaystackPopup {
-  setup: (config: PaystackConfig) => {
-    openIframe: () => void;
-  };
+  setup(config: PaystackConfig): { openIframe(): void };
 }
 
 interface PaystackConfig {
   key: string;
   email: string;
-  amount: number;
-  currency: string;
-  ref: string;
+  callback: (response: PaystackPopupResponse) => void;
+  onClose: () => void;
+  // Optional fields
+  amount?: number;
+  currency?: string;
+  ref?: string;
   metadata?: {
     custom_fields: Array<{
       display_name: string;
@@ -30,8 +31,6 @@ interface PaystackConfig {
       value: string;
     }>;
   };
-  callback: (response: PaystackPopupResponse) => void;
-  onClose: () => void;
 }
 
 // Declare Paystack global to avoid TypeScript errors
@@ -68,63 +67,153 @@ const loadPaystackScript = (): Promise<void> => {
  */
 export const initiateSubscription = async (email: string): Promise<boolean> => {
   try {
-    // Load Paystack script if not already loaded
+    const token = store.getState().auth.token;
+    
+    if (!token) {
+      console.error('Not authenticated');
+      return false;
+    }
+    
+    // First initialize the subscription on our backend
+    const initResponse = await axios.post(
+      `${API_BASE_URL}/api/v1/subscriptions/initialize`,
+      {},
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    if (!initResponse.data || !initResponse.data.authorization_url) {
+      console.error('Failed to initialize subscription');
+      return false;
+    }
+    
+    // Load Paystack script
     await loadPaystackScript();
     
-    return new Promise((resolve) => {
-      // Get Paystack public key from environment variables
-      const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
-      
-      if (!paystackKey) {
-        console.error('Paystack public key not found in environment variables');
-        resolve(false);
-        return;
-      }
-      
-      // Create payment reference
-      const paymentReference = `premium_sub_${Date.now()}`;
-      
-      // Initialize Paystack popup
-      const handler = window.PaystackPop.setup({
-        key: paystackKey,
-        email,
-        amount: 100000, // ₦1,000.00 in kobo
-        currency: 'NGN',
-        ref: paymentReference,
-        metadata: {
-          custom_fields: [
-            {
-              display_name: "Subscription Type",
-              variable_name: "subscription_type",
-              value: "premium"
+    // Open the Paystack payment page directly
+    window.location.href = initResponse.data.authorization_url;
+    
+    // The page will redirect to our callback URL after payment
+    // We don't resolve here because the page will be redirected
+    return true;
+    
+  } catch (error) {
+    console.error('Payment initialization failed:', error);
+    return false;
+  }
+};
+
+/**
+ * Alternative method that uses Paystack inline popup instead of redirection
+ * @param email User's email address
+ * @returns Promise that resolves when payment is complete
+ */
+export const initiateSubscriptionWithPopup = async (email: string): Promise<boolean> => {
+  // Load Paystack script if not already loaded
+  try {
+    await loadPaystackScript();
+    
+    const token = store.getState().auth.token;
+    
+    if (!token) {
+      console.error('Not authenticated');
+      return false;
+    }
+    
+    // Create a function to get a fresh reference for each payment attempt
+    const getFreshPaymentReference = async () => {
+      try {
+        // Initialize the subscription on our backend to get a fresh reference
+        const initResponse = await axios.post(
+          `${API_BASE_URL}/api/v1/subscriptions/initialize`,
+          {},
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
             }
-          ]
-        },
-        callback: function(response) {
-          // Handle successful payment
-          if (response.status === 'success') {
-            // Use promise chaining instead of async/await
-            activateSubscription(response.reference)
-              .then(() => {
-                resolve(true);
-              })
-              .catch((error) => {
-                console.error('Failed to activate subscription:', error);
-                resolve(false);
-              });
-          } else {
-            console.error('Payment failed:', response);
-            resolve(false);
           }
-        },
-        onClose: function() {
-          // Handle payment modal close without completion
+        );
+        
+        if (!initResponse.data || !initResponse.data.reference) {
+          throw new Error('Failed to initialize subscription');
+        }
+        
+        return {
+          reference: initResponse.data.reference,
+          access_code: initResponse.data.access_code
+        };
+      } catch (error) {
+        console.error('Failed to get payment reference:', error);
+        throw error;
+      }
+    };
+    
+    return new Promise((resolve) => {
+      const handlePayment = async () => {
+        try {
+          // Get Paystack public key from environment variables
+          const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+          
+          if (!paystackKey) {
+            console.error('Paystack public key not found in environment variables');
+            resolve(false);
+            return;
+          }
+          
+          // Get a fresh payment reference for this attempt
+          const { reference: paymentReference } = await getFreshPaymentReference();
+          
+          // Log the reference being sent to Paystack
+          console.log('Reference being sent to Paystack:', paymentReference);
+          
+          // Initialize Paystack popup
+          const handler = window.PaystackPop.setup({
+            key: paystackKey,
+            email,
+            amount: 100000, // ₦1,000 in kobo
+            currency: 'NGN',
+            ref: paymentReference,
+            callback: function(response) {
+              // Handle successful payment
+              if (response.status === 'success') {
+                // Log the reference received back from Paystack
+                console.log('Reference received back from Paystack:', response.reference);
+                
+                // Use promise chaining instead of async/await
+                activateSubscription(response.reference)
+                  .then(() => {
+                    resolve(true);
+                  })
+                  .catch((error) => {
+                    console.error('Failed to activate subscription:', error);
+                    resolve(false);
+                  });
+              } else {
+                console.error('Payment failed:', response);
+                resolve(false);
+              }
+            },
+            onClose: function() {
+              // Handle payment modal close without completion
+              resolve(false);
+            }
+          });
+          
+          // Open Paystack payment modal
+          handler.openIframe();
+        } catch (error) {
+          console.error('Failed to setup payment:', error);
           resolve(false);
         }
-      });
+      };
       
-      // Open Paystack payment modal
-      handler.openIframe();
+      // Start the payment process
+      handlePayment();
     });
     
   } catch (error) {
@@ -176,6 +265,44 @@ export const activateSubscription = async (paymentReference: string): Promise<vo
 };
 
 /**
+ * Cancels an active subscription
+ * @returns Promise resolving when subscription is cancelled
+ */
+export const cancelSubscription = async (): Promise<void> => {
+  try {
+    const token = store.getState().auth.token;
+    
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+    
+    const response = await axios.post(
+      `${API_BASE_URL}/api/v1/subscriptions/cancel`,
+      {},
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    // Update Redux state with new subscription info
+    if (response.data) {
+      store.dispatch(updateSubscription({
+        planType: response.data.planType,
+        startDate: response.data.startDate,
+        expiryDate: response.data.expiryDate,
+        autoRenew: response.data.autoRenew
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to cancel subscription:', error);
+    throw error;
+  }
+};
+
+/**
  * Verifies a payment with Paystack (can be called after webhook notification)
  * @param reference Payment reference to verify
  * @returns Promise resolving to verification result
@@ -206,19 +333,19 @@ export const verifyPayment = async (reference: string): Promise<boolean> => {
 };
 
 /**
- * Cancels current subscription
+ * Checks if user has premium subscription
+ * @returns Promise resolving to premium status
  */
-export const cancelSubscription = async (): Promise<void> => {
+export const checkPremiumStatus = async (): Promise<boolean> => {
   try {
     const token = store.getState().auth.token;
     
     if (!token) {
-      throw new Error('Not authenticated');
+      return false;
     }
     
-    const response = await axios.post(
-      `${API_BASE_URL}/api/v1/subscriptions/cancel`,
-      {},
+    const response = await axios.get(
+      `${API_BASE_URL}/api/v1/subscriptions/is-premium`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -227,17 +354,38 @@ export const cancelSubscription = async (): Promise<void> => {
       }
     );
     
-    // Update Redux state with updated subscription info
-    if (response.data) {
-      store.dispatch(updateSubscription({
-        planType: response.data.planType,
-        startDate: response.data.startDate,
-        expiryDate: response.data.expiryDate,
-        autoRenew: response.data.autoRenew
-      }));
-    }
+    return response.data === true;
   } catch (error) {
-    console.error('Failed to cancel subscription:', error);
+    console.error('Failed to check premium status:', error);
+    return false;
+  }
+};
+
+/**
+ * Gets detailed subscription information
+ * @returns Promise resolving to subscription details
+ */
+export const getSubscriptionDetails = async (): Promise<any> => {
+  try {
+    const token = store.getState().auth.token;
+    
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+    
+    const response = await axios.get(
+      `${API_BASE_URL}/api/v1/subscriptions/status`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error('Failed to get subscription details:', error);
     throw error;
   }
 }; 

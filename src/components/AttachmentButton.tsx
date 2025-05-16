@@ -51,7 +51,7 @@ const AttachmentButton: React.FC<AttachmentButtonProps> = ({
   const handleDocumentUpload = async () => {
     const canProceed = await checkPremiumFeature('document');
     if (canProceed) {
-      documentInputRef.current?.click();
+    documentInputRef.current?.click();
     }
   };
   
@@ -59,7 +59,7 @@ const AttachmentButton: React.FC<AttachmentButtonProps> = ({
   const handleImageUpload = async () => {
     const canProceed = await checkPremiumFeature('image');
     if (canProceed) {
-      imageInputRef.current?.click();
+    imageInputRef.current?.click();
     }
   };
   
@@ -67,13 +67,13 @@ const AttachmentButton: React.FC<AttachmentButtonProps> = ({
   const handleCameraCapture = async () => {
     const canProceed = await checkPremiumFeature('camera');
     if (canProceed) {
-      // Set accept to image/* and capture to environment
-      // This will open the camera on mobile devices
-      const input = imageInputRef.current;
-      if (input) {
-        input.setAttribute('capture', 'environment');
-        input.click();
-        input.removeAttribute('capture');
+    // Set accept to image/* and capture to environment
+    // This will open the camera on mobile devices
+    const input = imageInputRef.current;
+    if (input) {
+      input.setAttribute('capture', 'environment');
+      input.click();
+      input.removeAttribute('capture');
       }
     }
   };
@@ -120,13 +120,13 @@ const AttachmentButton: React.FC<AttachmentButtonProps> = ({
           isClosable: true
         });
       } else {
-        toast({
-          title: 'Upload failed',
-          description: 'Failed to upload file. Please try again.',
-          status: 'error',
-          duration: 5000,
-          isClosable: true
-        });
+      toast({
+        title: 'Upload failed',
+        description: 'Failed to upload file. Please try again.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true
+      });
       }
     } finally {
       setIsUploading(false);
