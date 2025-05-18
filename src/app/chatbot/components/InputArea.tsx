@@ -128,7 +128,7 @@ const InputArea: React.FC<InputAreaProps> = ({
   };
 
   return (
-    <Flex direction="column" mt={5} width={['100%', '100%', '70em']}>
+    <Flex direction="column" mt={5} width={['100%', '100%', '70em']} mb={10}>
       {/* Attachment previews */}
       {attachments && attachments.length > 0 && (
         <Box mb={2}>

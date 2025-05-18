@@ -107,7 +107,7 @@ const ChatbotPage = () => {
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   return (
-    <Flex direction="column" height="100vh">
+    <Flex direction="column" minHeight="100vh">
       {/* Header section with logo and navigation */}
       <Flex
         position="fixed"
@@ -144,7 +144,7 @@ const ChatbotPage = () => {
       </Flex>
 
       {/* Main content area */}
-      <Flex pt="100px" flex={1} width="full">
+      <Flex pt="120px" flex={1} width="full">
         {/* Sidebar for desktop view */}
         {token && (
           <Sidebar
