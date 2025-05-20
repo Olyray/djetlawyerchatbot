@@ -39,6 +39,7 @@ const Navigation = () => {
         <Flex display={displayMenu}>
           <Link href="https://djetlawyer.com/about/" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">About</Text></ChakraLink></Link>
           <Link href="https://djetlawyer.com/blog/" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Blog</Text></ChakraLink></Link>
+          <Link href="/pricing" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Pricing</Text></ChakraLink></Link>
           <Link href="/register" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Sign up</Text></ChakraLink></Link>
           <Link href="/login" passHref legacyBehavior><ChakraLink><Text fontSize="lg">Login</Text></ChakraLink></Link>
         </Flex>
@@ -58,6 +59,7 @@ const Navigation = () => {
             <MenuList>
               <Link href="https://djetlawyer.com/about/" passHref legacyBehavior><MenuItem as={ChakraLink}>About</MenuItem></Link>
               <Link href="https://djetlawyer.com/blog/" passHref legacyBehavior><MenuItem as={ChakraLink}>Blog</MenuItem></Link>
+              <Link href="/pricing" passHref legacyBehavior><MenuItem as={ChakraLink}>Pricing</MenuItem></Link>
               <Link href="/register" passHref legacyBehavior><MenuItem as={ChakraLink}>Sign up</MenuItem></Link>
               <Link href="/login" passHref legacyBehavior><MenuItem as={ChakraLink}>Login</MenuItem></Link>
               <Link href="https://djetlawyer.com/contact/" passHref legacyBehavior>

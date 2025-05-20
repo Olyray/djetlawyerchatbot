@@ -32,6 +32,7 @@ interface SubscriptionContextProps {
   hideSubscriptionPrompt: () => void;
   isSubscribing: boolean;
   subscriptionError: string | null;
+  lastSubscriptionStatus: 'idle' | 'subscribing' | 'success' | 'error';
 }
 
 // Create the context with a default value
@@ -40,6 +41,7 @@ const SubscriptionContext = createContext<SubscriptionContextProps>({
   hideSubscriptionPrompt: () => {},
   isSubscribing: false,
   subscriptionError: null,
+  lastSubscriptionStatus: 'idle',
 });
 
 interface SubscriptionProviderProps {
@@ -51,6 +53,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
   const [attemptedFeature, setAttemptedFeature] = useState<'document' | 'image' | 'camera' | 'audio' | undefined>(undefined);
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
+  const [lastSubscriptionStatus, setLastSubscriptionStatus] = useState<'idle' | 'subscribing' | 'success' | 'error'>('idle');
   
   const router = useRouter();
   const toast = useToast();
@@ -62,6 +65,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     setIsPromptOpen(true);
     // Reset any previous errors when showing the prompt
     setSubscriptionError(null);
+    setLastSubscriptionStatus('idle');
   }, []);
 
   const hideSubscriptionPrompt = useCallback(() => {
@@ -71,6 +75,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
   const handleSubscribe = async () => {
     // Reset any previous errors
     setSubscriptionError(null);
+    setLastSubscriptionStatus('subscribing');
     
     if (!user?.email) {
       // User not logged in - redirect to login page with return URL
@@ -88,6 +93,9 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
         // Close the modal
         hideSubscriptionPrompt();
         
+        // Update subscription status
+        setLastSubscriptionStatus('success');
+        
         // Show success message
         toast({
           title: 'Subscription Successful',
@@ -102,10 +110,12 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
         await refreshSubscription();
       } else {
         // Payment was not successful or was cancelled
+        setLastSubscriptionStatus('error');
         setSubscriptionError('Subscription process was not completed. Please try again.');
       }
     } catch (error) {
       console.error('Subscription failed:', error);
+      setLastSubscriptionStatus('error');
       setSubscriptionError('An error occurred during the subscription process. Please try again later.');
     } finally {
       setIsSubscribing(false);
@@ -119,6 +129,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
         hideSubscriptionPrompt,
         isSubscribing,
         subscriptionError,
+        lastSubscriptionStatus,
       }}
     >
       {children}
@@ -129,6 +140,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
         onSubscribe={handleSubscribe}
         isLoading={isSubscribing}
         error={subscriptionError}
+        isSuccess={lastSubscriptionStatus === 'success'}
       />
     </SubscriptionContext.Provider>
   );

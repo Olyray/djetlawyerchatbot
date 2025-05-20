@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import { VStack, Flex, Text, Button, Image, Box, useColorModeValue, Divider } from '@chakra-ui/react';
 import { Icon } from '@iconify/react';
+import { useRouter } from 'next/navigation';
 
 // Interface defining the props required by the Sidebar component
 interface SidebarProps {
@@ -19,6 +20,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, handleLogout, display, onClose }) => {
   // Get chat history from Redux store
   const { chats } = useSelector((state: RootState) => state.chat);
+  const router = useRouter();
   
   // Background and hover colors
   const hoverBg = useColorModeValue('gray.100', 'gray.700');
@@ -93,6 +95,19 @@ const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, hand
         </VStack>
 
         <Divider />
+
+        {/* Pricing button */}
+        <Button 
+          leftIcon={<Icon icon="heroicons-outline:tag" width="18px" height="18px" />}
+          onClick={() => {
+            router.push('/pricing');
+            onClose?.();
+          }} 
+          variant="ghost"
+          justifyContent="flex-start"
+        >
+          Pricing
+        </Button>
 
         {/* Logout button fixed at bottom */}
         <Button onClick={handleLogout} marginTop="auto" variant="outline">

@@ -126,21 +126,35 @@ const ChatbotPage = () => {
         <Box p={4}>
           <Image src={Logo.src} alt="dJetLawyer Logo" height={["40px", "60px"]} />
         </Box>
-        {/* Show login button for non-authenticated users */}
-        {!token && (
-          <Button onClick={handleLoginClick} mr={4}>
-            Login
+        
+        {/* Navigation buttons */}
+        <Flex>
+          <Button 
+            onClick={() => router.push('/pricing')} 
+            mr={4} 
+            variant="ghost" 
+            colorScheme="brand"
+          >
+            Pricing
           </Button>
-        )}
-        {/* Mobile menu button */}
-        <IconButton
-          aria-label="Open menu"
-          icon={<Icon icon="heroicons-outline:menu" />}
-          display={["flex", "flex", "none"]}
-          onClick={onOpen}
-          variant="ghost"
-          colorScheme="brand"
-        />
+          
+          {/* Show login button for non-authenticated users */}
+          {!token && (
+            <Button onClick={handleLoginClick} mr={4}>
+              Login
+            </Button>
+          )}
+          
+          {/* Mobile menu button */}
+          <IconButton
+            aria-label="Open menu"
+            icon={<Icon icon="heroicons-outline:menu" />}
+            display={["flex", "flex", "none"]}
+            onClick={onOpen}
+            variant="ghost"
+            colorScheme="brand"
+          />
+        </Flex>
       </Flex>
 
       {/* Main content area */}
