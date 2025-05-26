@@ -10,6 +10,9 @@ export interface SubscriptionDetails {
   startDate: string | null;
   expiryDate: string | null;
   autoRenew: boolean;
+  cancellationDate?: string | null;
+  cancellationReason?: string | null;
+  remainingDays?: number | null;
 }
 
 export interface AuthState {

@@ -20,6 +20,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, handleLogout, display, onClose }) => {
   // Get chat history from Redux store
   const { chats } = useSelector((state: RootState) => state.chat);
+  const { isPremium } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
   
   // Background and hover colors
@@ -107,6 +108,19 @@ const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, hand
           justifyContent="flex-start"
         >
           Pricing
+        </Button>
+
+        {/* Subscription Management button */}
+        <Button 
+          leftIcon={<Icon icon="heroicons-outline:credit-card" width="18px" height="18px" />}
+          onClick={() => {
+            router.push('/settings/subscription');
+            onClose?.();
+          }} 
+          variant="ghost"
+          justifyContent="flex-start"
+        >
+          Subscription Management
         </Button>
 
         {/* Logout button fixed at bottom */}

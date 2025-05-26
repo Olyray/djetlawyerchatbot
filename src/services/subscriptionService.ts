@@ -265,10 +265,11 @@ export const activateSubscription = async (paymentReference: string): Promise<vo
 };
 
 /**
- * Cancels an active subscription
+ * Cancels an active subscription with reason
+ * @param reason Optional reason for cancellation
  * @returns Promise resolving when subscription is cancelled
  */
-export const cancelSubscription = async (): Promise<void> => {
+export const cancelSubscription = async (reason?: string): Promise<void> => {
   try {
     const token = store.getState().auth.token;
     
@@ -276,9 +277,11 @@ export const cancelSubscription = async (): Promise<void> => {
       throw new Error('Not authenticated');
     }
     
+    const payload = reason ? { reason } : {};
+    
     const response = await axios.post(
       `${API_BASE_URL}/api/v1/subscriptions/cancel`,
-      {},
+      payload,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -293,7 +296,10 @@ export const cancelSubscription = async (): Promise<void> => {
         planType: response.data.planType,
         startDate: response.data.startDate,
         expiryDate: response.data.expiryDate,
-        autoRenew: response.data.autoRenew
+        autoRenew: response.data.autoRenew,
+        cancellationDate: response.data.cancellationDate,
+        cancellationReason: response.data.cancellationReason,
+        remainingDays: response.data.remainingDays
       }));
     }
   } catch (error) {
@@ -386,6 +392,40 @@ export const getSubscriptionDetails = async (): Promise<any> => {
     return response.data;
   } catch (error) {
     console.error('Failed to get subscription details:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get subscription payment history
+ * @param page Page number (1-based)
+ * @param pageSize Number of items per page
+ * @returns Promise resolving to paginated subscription history
+ */
+export const getSubscriptionHistory = async (page: number = 1, pageSize: number = 10): Promise<any> => {
+  try {
+    const token = store.getState().auth.token;
+    
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+    
+    // Calculate skip based on page number (1-based) and page size
+    const skip = (page - 1) * pageSize;
+    
+    const response = await axios.get(
+      `${API_BASE_URL}/api/v1/subscriptions/history?skip=${skip}&limit=${pageSize}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error('Failed to get subscription history:', error);
     throw error;
   }
 }; 

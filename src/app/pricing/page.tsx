@@ -93,15 +93,6 @@ export default function PricingPage() {
     showSubscriptionPrompt();
   };
   
-  // If user is already premium, redirect to chatbot
-  useEffect(() => {
-    if (isPremium) {
-      setTimeout(() => {
-        router.push('/chatbot');
-      }, 1500); // Short delay to show they're on premium plan
-    }
-  }, [isPremium, router]);
-  
   return (
     <Container maxW="container.xl" py={10}>
       <Box textAlign="center" mb={10}>
@@ -157,10 +148,6 @@ export default function PricingPage() {
                 </HStack>
               ))}
             </VStack>
-            
-            <Button colorScheme="gray" size="lg" width="100%">
-              Current Plan
-            </Button>
           </VStack>
         </Box>
         

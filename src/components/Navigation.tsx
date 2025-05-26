@@ -16,10 +16,15 @@ import {
 import Logo from '../../public/dJetLawyer_logo.png';
 import Link from 'next/link';
 import { HamburgerIcon } from '@chakra-ui/icons';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
 
 const Navigation = () => {
   const displayMenu = useBreakpointValue({ base: 'none', md: 'flex' });
   const displayMobileMenu = useBreakpointValue({ base: 'block', md: 'none' });
+  const { token } = useSelector((state: RootState) => state.auth);
+  
+  const isLoggedIn = !!token;
 
   return (
     <Box bg="white">
@@ -40,8 +45,18 @@ const Navigation = () => {
           <Link href="https://djetlawyer.com/about/" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">About</Text></ChakraLink></Link>
           <Link href="https://djetlawyer.com/blog/" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Blog</Text></ChakraLink></Link>
           <Link href="/pricing" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Pricing</Text></ChakraLink></Link>
-          <Link href="/register" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Sign up</Text></ChakraLink></Link>
-          <Link href="/login" passHref legacyBehavior><ChakraLink><Text fontSize="lg">Login</Text></ChakraLink></Link>
+          
+          {isLoggedIn ? (
+            <>
+              <Link href="/settings/subscription" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Subscription</Text></ChakraLink></Link>
+              <Link href="/chatbot" passHref legacyBehavior><ChakraLink><Text fontSize="lg">Chat</Text></ChakraLink></Link>
+            </>
+          ) : (
+            <>
+              <Link href="/register" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Sign up</Text></ChakraLink></Link>
+              <Link href="/login" passHref legacyBehavior><ChakraLink><Text fontSize="lg">Login</Text></ChakraLink></Link>
+            </>
+          )}
         </Flex>
         <Link href="https://djetlawyer.com/contact/" passHref legacyBehavior>
           <Button colorScheme="orange" size="md" display={displayMenu}>
@@ -60,8 +75,19 @@ const Navigation = () => {
               <Link href="https://djetlawyer.com/about/" passHref legacyBehavior><MenuItem as={ChakraLink}>About</MenuItem></Link>
               <Link href="https://djetlawyer.com/blog/" passHref legacyBehavior><MenuItem as={ChakraLink}>Blog</MenuItem></Link>
               <Link href="/pricing" passHref legacyBehavior><MenuItem as={ChakraLink}>Pricing</MenuItem></Link>
-              <Link href="/register" passHref legacyBehavior><MenuItem as={ChakraLink}>Sign up</MenuItem></Link>
-              <Link href="/login" passHref legacyBehavior><MenuItem as={ChakraLink}>Login</MenuItem></Link>
+              
+              {isLoggedIn ? (
+                <>
+                  <Link href="/settings/subscription" passHref legacyBehavior><MenuItem as={ChakraLink}>Subscription</MenuItem></Link>
+                  <Link href="/chatbot" passHref legacyBehavior><MenuItem as={ChakraLink}>Chat</MenuItem></Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/register" passHref legacyBehavior><MenuItem as={ChakraLink}>Sign up</MenuItem></Link>
+                  <Link href="/login" passHref legacyBehavior><MenuItem as={ChakraLink}>Login</MenuItem></Link>
+                </>
+              )}
+              
               <Link href="https://djetlawyer.com/contact/" passHref legacyBehavior>
                 <MenuItem as={Button} colorScheme="orange" width="100%">Contact Us</MenuItem>
               </Link>
