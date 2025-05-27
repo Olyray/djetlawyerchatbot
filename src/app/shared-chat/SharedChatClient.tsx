@@ -71,7 +71,7 @@ const SHARED_MESSAGES_STORAGE_KEY = 'djetlawyerchatbot-shared-messages';
 export function SharedChatClient() {
   // Get the chat ID from the URL query parameters
   const searchParams = useSearchParams();
-  const chatId = searchParams.get('id');
+  const chatId = searchParams?.get('id');
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const toast = useToast();
