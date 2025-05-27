@@ -19,7 +19,9 @@ import {
   Center, 
   Image,
   useToast,
-  useBreakpointValue
+  useBreakpointValue,
+  Checkbox,
+  HStack
 } from '@chakra-ui/react';
 import { IconContext } from 'react-icons';
 import dynamic from 'next/dynamic';
@@ -40,6 +42,7 @@ const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Redux hooks for state management and dispatch
   const dispatch = useDispatch<AppDispatch>();
@@ -51,7 +54,7 @@ const RegisterPage = () => {
 
   // Responsive design values using Chakra UI's useBreakpointValue
   const boxWidth = useBreakpointValue({ base: "90%", sm: "80%", md: "70%", lg: "xl" });
-  const boxHeight = useBreakpointValue({ base: "auto", md: "45em" });
+  const boxHeight = useBreakpointValue({ base: "auto", md: "auto" });
   const inputWidth = useBreakpointValue({ base: "100%", sm: "90%", md: "80%" });
   const fontSize = useBreakpointValue({ base: "xl", md: "2xl" });
   const buttonHeight = useBreakpointValue({ base: "50px", md: "60px" });
@@ -62,6 +65,17 @@ const RegisterPage = () => {
     if (password !== confirmPassword) {
       toast({
         title: "Passwords do not match",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    // Validate terms acceptance
+    if (!acceptedTerms) {
+      toast({
+        title: "Please accept the Terms and Conditions",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -147,8 +161,8 @@ const RegisterPage = () => {
         <Flex flex={1} width="full" align="center" justifyContent="center">
           <Box width={boxWidth} p={4}>
             {/* Registration form card */}
-            <Box borderWidth={1} borderRadius={"40px"} borderColor="orange.500" p={8} boxShadow="lg" bg="#f8f7f7" height={boxHeight} >
-              <VStack spacing={4} align="stretch">
+            <Box borderWidth={1} borderRadius={"40px"} borderColor="orange.500" p={8} boxShadow="lg" bg="#f8f7f7" minHeight={boxHeight} >
+              <VStack spacing={3} align="stretch">
                 {/* User avatar */}
                 <Flex justifyContent="center" mb={0}>
                   <Image src={MaleUser.src} alt="Male User"  boxSize={{ base: "60px", md: "80px" }} />
@@ -209,6 +223,22 @@ const RegisterPage = () => {
                     </InputGroup>
                   </FormControl>
                 </Center>
+                {/* Terms and Conditions checkbox */}
+                <Center>
+                  <HStack spacing={2} width={inputWidth} justify="flex-start">
+                    <Checkbox
+                      isChecked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      colorScheme="orange"
+                    />
+                    <Text fontSize="sm" color="gray.600">
+                      I agree to the{' '}
+                      <Link color="orange.500" href="/terms" target="_blank">
+                        Terms and Conditions
+                      </Link>
+                    </Text>
+                  </HStack>
+                </Center>
                 {/* Sign Up button */}
                 <Center>
                   <Button
@@ -216,9 +246,10 @@ const RegisterPage = () => {
                     size="lg"
                     width={inputWidth}
                     height={buttonHeight}
-                    mt={4}
+                    mt={2}
                     onClick={handleRegister}
                     isLoading={isLoading}
+                    isDisabled={!acceptedTerms}
                   >
                     Sign Up
                   </Button>
@@ -248,6 +279,7 @@ const RegisterPage = () => {
                     mt={"8px"}
                     height={"60px"}
                     onClick={handleGoogleSignIn}
+                    isDisabled={!acceptedTerms}
                   >
                     Login with Google
                   </Button>
