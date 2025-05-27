@@ -6,6 +6,7 @@ import { APP_URL } from '@/utils/config';
 
 // Define default metadata for the entire application
 export const metadata: Metadata = {
+  metadataBase: new URL(APP_URL || 'https://chat.djetlawyer.com'),
   title: {
     template: '%s | dJetLawyer Chatbot',
     default: 'dJetLawyer Chatbot - Your AI Legal Assistant',
