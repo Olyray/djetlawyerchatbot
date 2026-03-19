@@ -1,5 +1,6 @@
 // Root layout component that provides the foundational structure for the entire application
 import { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/next';
 import { GoogleSignInScript } from '../components/GoogleSignInScript';
 import { AppProviders } from '../components/AppProviders';
 import { APP_URL } from '@/utils/config';
@@ -56,6 +57,9 @@ export default function RootLayout({
         <AppProviders>
           {children}
         </AppProviders>
+        
+        {/* Vercel Web Analytics */}
+        <Analytics />
       </body>
     </html>
   )
