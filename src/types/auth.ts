@@ -1,6 +1,7 @@
 export interface User {
   email: string;
   password: string;
+  admin_user?: boolean;
 }
 
 export type SubscriptionPlanType = 'free' | 'premium';
@@ -38,4 +39,5 @@ export interface LoginResponse {
   refresh_token: string;
   token_type: string;
   subscription?: SubscriptionDetails;
+  user?: User;
 }

@@ -196,7 +196,8 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.token = action.payload.access_token;
         state.refreshToken = action.payload.refresh_token;
-        state.user = { email: action.meta.arg.username, password: '' };
+        // Use the user data from the backend response instead of creating a fake one
+        state.user = action.payload.user || { email: action.meta.arg.username, password: '' };
         
         // Update subscription details if included in login response
         if (action.payload.subscription) {

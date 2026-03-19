@@ -22,9 +22,10 @@ import { RootState } from '../redux/store';
 const Navigation = () => {
   const displayMenu = useBreakpointValue({ base: 'none', md: 'flex' });
   const displayMobileMenu = useBreakpointValue({ base: 'block', md: 'none' });
-  const { token } = useSelector((state: RootState) => state.auth);
+  const { token, user } = useSelector((state: RootState) => state.auth);
   
   const isLoggedIn = !!token;
+  const isAdmin = user?.admin_user === true;
 
   return (
     <Box bg="white">
@@ -49,7 +50,8 @@ const Navigation = () => {
           {isLoggedIn ? (
             <>
               <Link href="/settings/subscription" passHref legacyBehavior><ChakraLink><Text mr={8} fontSize="lg">Subscription</Text></ChakraLink></Link>
-              <Link href="/chatbot" passHref legacyBehavior><ChakraLink><Text fontSize="lg">Chat</Text></ChakraLink></Link>
+              <Link href="/chatbot" passHref legacyBehavior><ChakraLink><Text mr={isAdmin ? 8 : 0} fontSize="lg">Chat</Text></ChakraLink></Link>
+              {isAdmin && <Link href="/admin" passHref legacyBehavior><ChakraLink><Text fontSize="lg">Admin</Text></ChakraLink></Link>}
             </>
           ) : (
             <>
@@ -80,6 +82,7 @@ const Navigation = () => {
                 <>
                   <Link href="/settings/subscription" passHref legacyBehavior><MenuItem as={ChakraLink}>Subscription</MenuItem></Link>
                   <Link href="/chatbot" passHref legacyBehavior><MenuItem as={ChakraLink}>Chat</MenuItem></Link>
+                  {isAdmin && <Link href="/admin" passHref legacyBehavior><MenuItem as={ChakraLink}>Admin</MenuItem></Link>}
                 </>
               ) : (
                 <>

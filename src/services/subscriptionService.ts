@@ -24,6 +24,7 @@ interface PaystackConfig {
   amount?: number;
   currency?: string;
   ref?: string;
+  channels?: string[]; // Payment channels to enable
   metadata?: {
     custom_fields: Array<{
       display_name: string;
@@ -178,6 +179,7 @@ export const initiateSubscriptionWithPopup = async (email: string): Promise<bool
             amount: 100000, // ₦1,000 in kobo
             currency: 'NGN',
             ref: paymentReference,
+            channels: ['card'], // Only allow card payments for subscriptions
             callback: function(response) {
               // Handle successful payment
               if (response.status === 'success') {

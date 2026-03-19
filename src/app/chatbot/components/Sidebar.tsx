@@ -20,8 +20,11 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, handleLogout, display, onClose }) => {
   // Get chat history from Redux store
   const { chats } = useSelector((state: RootState) => state.chat);
-  const { isPremium } = useSelector((state: RootState) => state.auth);
+  const { isPremium, user } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
+  
+  // Check if user is admin
+  const isAdmin = user?.admin_user === true;
   
   // Background and hover colors
   const hoverBg = useColorModeValue('gray.100', 'gray.700');
@@ -122,6 +125,22 @@ const Sidebar: React.FC<SidebarProps> = ({ handleNewChat, handleChatSelect, hand
         >
           Subscription Management
         </Button>
+
+        {/* Admin Dashboard button - only visible to admins */}
+        {isAdmin && (
+          <Button 
+            leftIcon={<Icon icon="heroicons-outline:shield-check" width="18px" height="18px" />}
+            onClick={() => {
+              router.push('/admin');
+              onClose?.();
+            }} 
+            variant="ghost"
+            justifyContent="flex-start"
+            color="purple.400"
+          >
+            Admin Dashboard
+          </Button>
+        )}
 
         {/* Logout button fixed at bottom */}
         <Button onClick={handleLogout} marginTop="auto" variant="outline">
