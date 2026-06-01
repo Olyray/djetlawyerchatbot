@@ -66,19 +66,19 @@ const loadPaystackScript = (): Promise<void> => {
  * @param email User's email address
  * @returns Promise that resolves when payment is complete
  */
-export const initiateSubscription = async (email: string): Promise<boolean> => {
+export const initiateSubscription = async (email: string, channels?: string[]): Promise<boolean> => {
   try {
     const token = store.getState().auth.token;
-    
+
     if (!token) {
       console.error('Not authenticated');
       return false;
     }
-    
+
     // First initialize the subscription on our backend
     const initResponse = await axios.post(
       `${API_BASE_URL}/api/v1/subscriptions/initialize`,
-      {},
+      { channels },
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -113,25 +113,25 @@ export const initiateSubscription = async (email: string): Promise<boolean> => {
  * @param email User's email address
  * @returns Promise that resolves when payment is complete
  */
-export const initiateSubscriptionWithPopup = async (email: string): Promise<boolean> => {
+export const initiateSubscriptionWithPopup = async (email: string, channels?: string[]): Promise<boolean> => {
   // Load Paystack script if not already loaded
   try {
     await loadPaystackScript();
-    
+
     const token = store.getState().auth.token;
-    
+
     if (!token) {
       console.error('Not authenticated');
       return false;
     }
-    
+
     // Create a function to get a fresh reference for each payment attempt
     const getFreshPaymentReference = async () => {
       try {
         // Initialize the subscription on our backend to get a fresh reference
         const initResponse = await axios.post(
           `${API_BASE_URL}/api/v1/subscriptions/initialize`,
-          {},
+          { channels },
           {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -179,7 +179,7 @@ export const initiateSubscriptionWithPopup = async (email: string): Promise<bool
             amount: 100000, // ₦1,000 in kobo
             currency: 'NGN',
             ref: paymentReference,
-            channels: ['card'], // Only allow card payments for subscriptions
+            channels: channels || ['card', 'bank_transfer'],
             callback: function(response) {
               // Handle successful payment
               if (response.status === 'success') {

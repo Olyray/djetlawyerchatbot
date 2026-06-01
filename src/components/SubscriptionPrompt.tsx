@@ -26,7 +26,7 @@ interface SubscriptionPromptProps {
   isOpen: boolean;
   onClose: () => void;
   attemptedFeature?: 'document' | 'image' | 'camera' | 'audio';
-  onSubscribe: () => void;
+  onSubscribe: (channels?: string[]) => void;
   isLoading?: boolean;
   error?: string | null;
   isSuccess?: boolean;
@@ -67,11 +67,20 @@ const SubscriptionPrompt: React.FC<SubscriptionPromptProps> = ({
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const highlightColor = useColorModeValue('brand.500', 'brand.400');
   const router = useRouter();
-  
-  const featureName = attemptedFeature 
-    ? attemptedFeature.charAt(0).toUpperCase() + attemptedFeature.slice(1) 
+
+  const [selectedChannels, setSelectedChannels] = React.useState<string[]>(['card', 'bank_transfer']);
+
+  // Reset payment method selection when modal opens
+  React.useEffect(() => {
+    if (isOpen) {
+      setSelectedChannels(['card', 'bank_transfer']);
+    }
+  }, [isOpen]);
+
+  const featureName = attemptedFeature
+    ? attemptedFeature.charAt(0).toUpperCase() + attemptedFeature.slice(1)
     : 'Premium';
-    
+
   // Feature benefits to display
   const premiumFeatures = [
     { name: 'Document Uploads', icon: 'ph:file-doc', description: 'Upload PDF, DOC, DOCX & TXT files' },
@@ -160,7 +169,6 @@ const SubscriptionPrompt: React.FC<SubscriptionPromptProps> = ({
                     ))}
                   </VStack>
                 </Box>
-                
                 <Box textAlign="center" mt={4}>
                   <Text fontWeight="bold" fontSize="xl" mb={2}>
                     ₦1,000/month
@@ -173,12 +181,12 @@ const SubscriptionPrompt: React.FC<SubscriptionPromptProps> = ({
             )}
           </VStack>
         </ModalBody>
-        
+
         <ModalFooter bg="gray.50" borderTop="1px solid" borderColor={borderColor}>
           {isSuccess ? (
-            <Button 
-              colorScheme="brand" 
-              size="lg" 
+            <Button
+              colorScheme="brand"
+              size="lg"
               width="100%"
               onClick={handleGoChatbot}
             >
@@ -189,10 +197,10 @@ const SubscriptionPrompt: React.FC<SubscriptionPromptProps> = ({
               <Button variant="outline" mr={3} onClick={onClose} isDisabled={isLoading}>
                 Maybe Later
               </Button>
-              <Button 
-                colorScheme="brand" 
-                onClick={onSubscribe} 
-                isLoading={isLoading} 
+              <Button
+                colorScheme="brand"
+                onClick={() => onSubscribe(selectedChannels)}
+                isLoading={isLoading}
                 loadingText="Processing"
                 leftIcon={isLoading ? <Spinner size="sm" /> : undefined}
               >

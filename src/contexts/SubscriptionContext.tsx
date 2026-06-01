@@ -72,23 +72,23 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     setIsPromptOpen(false);
   }, []);
 
-  const handleSubscribe = async () => {
+  const handleSubscribe = async (channels?: string[]) => {
     // Reset any previous errors
     setSubscriptionError(null);
     setLastSubscriptionStatus('subscribing');
-    
+
     if (!user?.email) {
       // User not logged in - redirect to login page with return URL
       hideSubscriptionPrompt();
       router.push('/login?returnUrl=/pricing');
       return;
     }
-    
+
     try {
       setIsSubscribing(true);
-      
-      const success = await initiateSubscriptionWithPopup(user.email);
-      
+
+      const success = await initiateSubscriptionWithPopup(user.email, channels);
+
       if (success) {
         // Close the modal
         hideSubscriptionPrompt();
