@@ -79,60 +79,60 @@ const AttachmentButton: React.FC<AttachmentButtonProps> = ({
   };
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>, fileType: 'document' | 'image') => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
     setIsUploading(true);
-    
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('file_type', fileType);
-      
-      const response = await axios.post(
-        `${API_BASE_URL}/api/v1/attachments/upload`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`
+
+    for (const file of Array.from(files)) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('file_type', fileType);
+
+        const response = await axios.post(
+          `${API_BASE_URL}/api/v1/attachments/upload`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${token}`
+            }
           }
+        );
+
+        onFileAttached(
+          response.data.id,
+          response.data.file_name,
+          response.data.file_type
+        );
+      } catch (error: any) {
+        console.error('File upload failed:', error);
+
+        if (error.response && error.response.status === 403) {
+          showSubscriptionPrompt(fileType);
+          toast({
+            title: 'Premium feature',
+            description: `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} uploads require a premium subscription.`,
+            status: 'info',
+            duration: 5000,
+            isClosable: true
+          });
+          break;
+        } else {
+          toast({
+            title: 'Upload failed',
+            description: `Failed to upload ${file.name}. Please try again.`,
+            status: 'error',
+            duration: 5000,
+            isClosable: true
+          });
         }
-      );
-      
-      onFileAttached(
-        response.data.id,
-        response.data.file_name,
-        response.data.file_type
-      );
-    } catch (error: any) {
-      console.error('File upload failed:', error);
-      
-      // Check for 403 error which indicates premium feature access denied
-      if (error.response && error.response.status === 403) {
-        // Show the subscription prompt
-        showSubscriptionPrompt(fileType);
-        toast({
-          title: 'Premium feature',
-          description: `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} uploads require a premium subscription.`,
-          status: 'info',
-          duration: 5000,
-          isClosable: true
-        });
-      } else {
-      toast({
-        title: 'Upload failed',
-        description: 'Failed to upload file. Please try again.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true
-      });
       }
-    } finally {
-      setIsUploading(false);
-      // Reset file input
-      event.target.value = '';
     }
+
+    setIsUploading(false);
+    event.target.value = '';
   };
   
   return (
@@ -190,6 +190,7 @@ const AttachmentButton: React.FC<AttachmentButtonProps> = ({
         ref={imageInputRef}
         style={{ display: 'none' }}
         accept="image/*"
+        multiple
         onChange={(e) => handleFileChange(e, 'image')}
       />
     </>
